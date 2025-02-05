@@ -1,8 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const StaffInput = () => {
-  // Initial form state that matches the MongoDB schema
+  const navigate = useNavigate();
   const initialFormState = {
     dateOfVisit: "",
     attendingStaff: "",
@@ -107,8 +108,7 @@ const StaffInput = () => {
         formData
       );
       setSuccess("Staff visit record created successfully!");
-      // Reset form to initial state after successful submission
-      setFormData(initialFormState);
+      navigate(`/SectionOne?staffVisitId=${response.data._id}`);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -402,7 +402,7 @@ const StaffInput = () => {
             disabled={isLoading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300"
           >
-            {isLoading ? "Submitting..." : "Submit"}
+            {isLoading ? "Processing..." : "Next"}
           </button>
         </div>
       </form>
