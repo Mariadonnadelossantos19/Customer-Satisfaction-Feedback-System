@@ -27,20 +27,20 @@ const CustomerFeedback = () => {
   const [success, setSuccess] = useState(false);
 
   const satisfactionCategories = [
-    { key: "speedAndTimeliness", label: "Speed and Timeliness" },
-    { key: "qualityOfService", label: "Quality of Service" },
-    { key: "relevanceOfService", label: "Relevance of Service" },
-    { key: "staffCompetence", label: "Staff Competence" },
-    { key: "staffAttitude", label: "Staff Attitude" },
-    { key: "overallPerception", label: "Overall Perception" },
+    { key: "speedAndTimeliness", label: "Speed and Timeliness", icon: "⚡" },
+    { key: "qualityOfService", label: "Quality of Service", icon: "✨" },
+    { key: "relevanceOfService", label: "Relevance of Service", icon: "🎯" },
+    { key: "staffCompetence", label: "Staff Competence", icon: "🎓" },
+    { key: "staffAttitude", label: "Staff Attitude", icon: "😊" },
+    { key: "overallPerception", label: "Overall Perception", icon: "⭐" },
   ];
 
   const emojiRatings = {
-    1: { emoji: "😡", label: "Very Dissatisfied" },
-    2: { emoji: "😟", label: "Dissatisfied" },
-    3: { emoji: "😐", label: "Neutral" },
-    4: { emoji: "😊", label: "Satisfied" },
-    5: { emoji: "😁", label: "Very Satisfied" },
+    1: { emoji: "😡", label: "Very Dissatisfied", color: "bg-red-100" },
+    2: { emoji: "😟", label: "Dissatisfied", color: "bg-orange-100" },
+    3: { emoji: "😐", label: "Neutral", color: "bg-yellow-100" },
+    4: { emoji: "😊", label: "Satisfied", color: "bg-blue-100" },
+    5: { emoji: "😁", label: "Very Satisfied", color: "bg-green-100" },
   };
 
   const handleSatisfactionChange = (category, value) => {
@@ -80,98 +80,105 @@ const CustomerFeedback = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Customer Feedback Form</h1>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4">
+        <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
+          <h1 className="text-3xl font-bold text-gray-800 text-center mb-8">
+            Customer Feedback Form
+          </h1>
 
-      {error && (
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
+          {error && (
+            <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded" role="alert">
+              <p className="text-red-700">{error}</p>
+            </div>
+          )}
 
-      {success && (
-        <div
-          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
-          role="alert"
-        >
-          Feedback submitted successfully!
-        </div>
-      )}
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded" role="alert">
+              <p className="text-green-700">Feedback submitted successfully!</p>
+            </div>
+          )}
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-lg font-semibold mb-4">Satisfaction Ratings</h2>
-          <p className="text-sm text-gray-600 mb-4">
-            Please rate your satisfaction (1-Very Satisfied to 5-Very
-            Dissatisfied)
-          </p>
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <h2 className="text-xl font-semibold text-gray-800 mb-6">
+                Satisfaction Ratings
+              </h2>
+              <p className="text-gray-600 mb-6">
+                Please rate your satisfaction with our services
+              </p>
 
-          <div className="space-y-4">
-            {satisfactionCategories.map(({ key, label }) => (
-              <div key={key} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
-                  {label}
-                </label>
-                <div className="flex space-x-4">
-                  {Object.entries(emojiRatings).map(([value, { emoji, label }]) => (
-                    <div className="flex flex-col items-center" key={value}>
-                      <button
-                        onClick={() => handleSatisfactionChange(key, value)}
-                        className={`p-2 border rounded focus:ring-2 focus:ring-blue-500 ${
-                          formData.satisfaction[key] === Number(value) ? "bg-blue-100" : ""
-                        }`}
-                        type="button"
-                      >
-                        {emoji}
-                      </button>
-                      <span className="text-sm">{label}</span>
+              <div className="space-y-6">
+                {satisfactionCategories.map(({ key, label, icon }) => (
+                  <div key={key} className="bg-white p-6 rounded-lg shadow-sm">
+                    <div className="flex items-center gap-3 mb-4">
+                      <span className="text-2xl">{icon}</span>
+                      <label className="text-lg font-medium text-gray-700">
+                        {label}
+                      </label>
                     </div>
-                  ))}
-                </div>
+                    <div className="flex flex-wrap gap-4">
+                      {Object.entries(emojiRatings).map(([value, { emoji, label, color }]) => (
+                        <button
+                          type="button"
+                          key={value}
+                          onClick={() => handleSatisfactionChange(key, value)}
+                          className={`flex flex-col items-center p-4 rounded-lg transition-all duration-200 
+                            ${color} hover:opacity-90 
+                            ${formData.satisfaction[key] === Number(value) 
+                              ? 'ring-2 ring-blue-500 transform scale-105' 
+                              : ''}`}
+                        >
+                          <span className="text-3xl mb-2">{emoji}</span>
+                          <span className="text-sm font-medium text-gray-700">{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
 
-          <div className="mt-6 space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              How likely are you to recommend our services? (0-10)
-            </label>
-            <input
-              type="number"
-              name="recommendationScore"
-              min="0"
-              max="10"
-              value={formData.recommendationScore}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <div className="mb-6">
+                <label className="block text-lg font-medium text-gray-700 mb-2">
+                  How likely are you to recommend our services? (0-10)
+                </label>
+                <input
+                  type="number"
+                  name="recommendationScore"
+                  min="0"
+                  max="10"
+                  value={formData.recommendationScore}
+                  onChange={handleInputChange}
+                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  required
+                />
+              </div>
 
-          <div className="mt-6 space-y-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Suggestions for Improvement
-            </label>
-            <textarea
-              name="suggestions"
-              value={formData.suggestions}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 h-32"
-              placeholder="Please share your suggestions..."
-            />
-          </div>
+              <div className="mb-6">
+                <label className="block text-lg font-medium text-gray-700 mb-2">
+                  Suggestions for Improvement
+                </label>
+                <textarea
+                  name="suggestions"
+                  value={formData.suggestions}
+                  onChange={handleInputChange}
+                  className="w-full h-32 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  placeholder="Please share your suggestions for improvement..."
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Submit Feedback
+            </button>
+          </form>
         </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Next
-        </button>
-      </form>
+      </div>
     </div>
   );
 };
