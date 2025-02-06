@@ -35,6 +35,14 @@ const CustomerFeedback = () => {
     { key: "overallPerception", label: "Overall Perception" },
   ];
 
+  const emojiRatings = {
+    1: { emoji: "😡", label: "Very Dissatisfied" },
+    2: { emoji: "😟", label: "Dissatisfied" },
+    3: { emoji: "😐", label: "Neutral" },
+    4: { emoji: "😊", label: "Satisfied" },
+    5: { emoji: "😁", label: "Very Satisfied" },
+  };
+
   const handleSatisfactionChange = (category, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -107,21 +115,22 @@ const CustomerFeedback = () => {
                 <label className="block text-sm font-medium text-gray-700">
                   {label}
                 </label>
-                <select
-                  value={formData.satisfaction[key]}
-                  onChange={(e) =>
-                    handleSatisfactionChange(key, e.target.value)
-                  }
-                  className="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500"
-                  required
-                >
-                  <option value="">Select Rating</option>
-                  {[1, 2, 3, 4, 5].map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
+                <div className="flex space-x-4">
+                  {Object.entries(emojiRatings).map(([value, { emoji, label }]) => (
+                    <div className="flex flex-col items-center" key={value}>
+                      <button
+                        onClick={() => handleSatisfactionChange(key, value)}
+                        className={`p-2 border rounded focus:ring-2 focus:ring-blue-500 ${
+                          formData.satisfaction[key] === Number(value) ? "bg-blue-100" : ""
+                        }`}
+                        type="button"
+                      >
+                        {emoji}
+                      </button>
+                      <span className="text-sm">{label}</span>
+                    </div>
                   ))}
-                </select>
+                </div>
               </div>
             ))}
           </div>
