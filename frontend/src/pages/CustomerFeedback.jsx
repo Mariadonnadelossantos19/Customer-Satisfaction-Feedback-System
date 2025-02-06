@@ -1,8 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 const CustomerFeedback = () => {
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const customerProfileId = searchParams.get("customerProfileId");
   const staffVisitId = searchParams.get("staffVisitId");
@@ -55,9 +56,15 @@ const CustomerFeedback = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:5000/api/customer-feedback", formData);
+      const response = await axios.post(
+        "http://localhost:5000/api/customer-feedback",
+        formData
+      );
       setSuccess(true);
       setError("");
+      navigate(
+        `/library-feedback?customerFeedbackId=${response.data._id}&staffVisitId=${staffVisitId}`
+      );
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
       setSuccess(false);
@@ -153,7 +160,7 @@ const CustomerFeedback = () => {
           type="submit"
           className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
-          Submit Feedback
+          Next
         </button>
       </form>
     </div>

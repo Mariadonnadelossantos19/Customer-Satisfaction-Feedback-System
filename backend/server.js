@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const staffVisitRoutes = require("./routes/staffVisitRoutes");
 const customerProfileRoutes = require("./routes/customerProfileRoutes");
 const customerFeedbackRoutes = require("./routes/customerFeedbackRoutes");
+const libraryUserFeedbackRoutes = require("./routes/libraryUserFeedbackRoutes");
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/api/staff-visits", staffVisitRoutes);
 app.use("/api/customer-profiles", customerProfileRoutes);
 app.use("/api/customer-feedback", customerFeedbackRoutes);
+app.use("/api/library-feedback", libraryUserFeedbackRoutes);
 
 const PORT = process.env.PORT || 5000;
 
