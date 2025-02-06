@@ -4,6 +4,7 @@ const cors = require("cors");
 const connectDB = require("./config/db");
 const staffVisitRoutes = require("./routes/staffVisitRoutes");
 const customerProfileRoutes = require("./routes/customerProfileRoutes");
+const customerFeedbackRoutes = require("./routes/customerFeedbackRoutes");
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.json());
 // Routes
 app.use("/api/staff-visits", staffVisitRoutes);
 app.use("/api/customer-profiles", customerProfileRoutes);
+app.use("/api/customer-feedback", customerFeedbackRoutes);
 
 const PORT = process.env.PORT || 5000;
 

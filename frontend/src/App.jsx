@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import StaffInput from "./pages/StaffInput";
 import SectionOne from "./pages/SectionOne";
+import CustomerFeedback from "./pages/CustomerFeedback";
 
 const App = () => {
   return (
@@ -10,6 +11,7 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/staff-input" element={<StaffInput />} />
         <Route path="/SectionOne" element={<SectionOne />} />
+        <Route path="/customer-feedback" element={<CustomerFeedback />} />
         {/* Add more routes here as needed */}
       </Routes>
     </Router>
