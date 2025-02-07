@@ -6,6 +6,7 @@ const createCustomerFeedback = async (req, res) => {
     const customerFeedback = await CustomerFeedback.create(req.body);
     res.status(201).json(customerFeedback);
   } catch (error) {
+    console.error("Error creating customer feedback:", error);
     res.status(400).json({ message: error.message });
   }
 };

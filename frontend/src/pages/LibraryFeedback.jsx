@@ -56,7 +56,9 @@ const LibraryFeedback = () => {
       await axios.post("http://localhost:5000/api/library-feedback", formData);
       setSuccess(true);
       setError("");
-      // Navigate to next page or show completion message
+      
+      // Navigate to Review Summary with all collected data
+      navigate(`/review-summary?staffVisitId=${staffVisitId}&customerFeedbackId=${customerFeedbackId}`);
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
       setSuccess(false);

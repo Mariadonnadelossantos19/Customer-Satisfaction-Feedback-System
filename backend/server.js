@@ -6,6 +6,7 @@ const staffVisitRoutes = require("./routes/staffVisitRoutes");
 const customerProfileRoutes = require("./routes/customerProfileRoutes");
 const customerFeedbackRoutes = require("./routes/customerFeedbackRoutes");
 const libraryUserFeedbackRoutes = require("./routes/libraryUserFeedbackRoutes");
+const reviewSummaryRoutes = require("./routes/reviewSummaryRoutes");
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use("/api/staff-visits", staffVisitRoutes);
 app.use("/api/customer-profiles", customerProfileRoutes);
 app.use("/api/customer-feedback", customerFeedbackRoutes);
 app.use("/api/library-feedback", libraryUserFeedbackRoutes);
+app.use("/api/review-summary", reviewSummaryRoutes);
 
 const PORT = process.env.PORT || 4000;
 

@@ -5,6 +5,9 @@ import SectionOne from "./pages/SectionOne";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import LibraryFeedback from "./pages/LibraryFeedback";
 import Navbar from "./Components/Layout/Navbar"
+import CustomerReport from "./pages/CustomerReport";
+import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
+import ReviewSummary from "./pages/ReviewSummary";
 
 const App = () => {
   return (
@@ -16,6 +19,10 @@ const App = () => {
         <Route path="/SectionOne" element={<SectionOne />} />
         <Route path="/customer-feedback" element={<CustomerFeedback />} />
         <Route path="/library-feedback" element={<LibraryFeedback />} />
+        <Route path="/Customer-Report" element={<CustomerReport />} />
+        <Route path="/customer-review" element={<CustomerReviewDashboard />} />
+        <Route path="/review-summary" element={<ReviewSummary />} />
+
 
       
         {/* Add more routes here as needed */}
