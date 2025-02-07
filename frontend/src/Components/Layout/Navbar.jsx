@@ -27,7 +27,7 @@ const Navbar = () => {
               <span className="text-[#0083ff] font-semibold">
                 Customer Satisfaction Feedback System
               </span>
-            </Link>
+            </Link> 
           </div>
 
           {/* Desktop Navigation */}
