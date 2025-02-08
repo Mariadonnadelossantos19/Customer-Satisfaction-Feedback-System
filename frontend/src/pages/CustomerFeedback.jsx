@@ -139,23 +139,26 @@ const CustomerFeedback = () => {
               </div>
             </div>
 
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <div className="mb-6">
-                <label className="block text-lg font-medium text-gray-700 mb-2">
-                  How likely are you to recommend our services? (0-10)
-                </label>
-                <input
-                  type="number"
-                  name="recommendationScore"
-                  min="0"
-                  max="10"
-                  value={formData.recommendationScore}
-                  onChange={handleInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                  required
-                />
+            <div className="bg-gray-50 p-6 rounded-lg shadow-md">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4 border-b-2 border-blue-500">Recommendation Score</h2>
+              <p className="text-gray-600 mb-2">How likely is it that you would recommend/endose DOST's services to others?</p>
+              <div className="flex items-center justify-center space-x-2 mb-4">
+                <span className="text-gray-600">Not at all likely</span>
+                {Array.from({ length: 11 }, (_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleInputChange({ target: { name: 'recommendationScore', value: index } })}
+                    className={`w-10 h-10 flex items-center justify-center rounded-full border-2 transition-colors duration-200 
+                      ${formData.recommendationScore === index ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`}
+                  >
+                    {index}
+                  </button>
+                ))}
+                <span className="text-gray-600">Extremely likely</span>
               </div>
+            </div>
 
+            <div className="bg-gray-50 p-6 rounded-lg">
               <div className="mb-6">
                 <label className="block text-lg font-medium text-gray-700 mb-2">
                   Suggestions for Improvement

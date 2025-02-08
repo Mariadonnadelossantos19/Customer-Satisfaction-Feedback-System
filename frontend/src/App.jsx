@@ -8,11 +8,12 @@ import Navbar from "./Components/Layout/Navbar"
 import CustomerReport from "./pages/CustomerReport";
 import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
 import ReviewSummary from "./pages/ReviewSummary";
+import Learnmore from "./pages/Learnmore"
 
 const App = () => {
   return (
     <Router>
-        <Navbar/>
+      <Navbar/>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/staff-input" element={<StaffInput />} />
@@ -22,6 +23,8 @@ const App = () => {
         <Route path="/Customer-Report" element={<CustomerReport />} />
         <Route path="/customer-review" element={<CustomerReviewDashboard />} />
         <Route path="/review-summary" element={<ReviewSummary />} />
+        <Route path="/learn-more" element={<Learnmore />} />
+
 
 
       
