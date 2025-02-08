@@ -13,7 +13,7 @@ import Learnmore from "./pages/Learnmore"
 const App = () => {
   return (
     <Router>
-      <Navbar/>
+      
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/staff-input" element={<StaffInput />} />

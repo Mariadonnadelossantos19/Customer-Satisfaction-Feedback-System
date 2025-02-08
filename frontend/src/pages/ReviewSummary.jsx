@@ -1,6 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
+
+const classifications = [
+  "Student",
+  "Owner of a business",
+  "Employee of a business",
+  "Government employee",
+  "Professional",
+  "Overseas Filipino Worker",
+  "Not employed",
+  "Others",
+];
+const ageGroup = [
+  "15 & below",
+  "16-20",
+  "21-30",
+  "31-40",
+  "41-50",
+  "51-59",
+  "60 & above",
+];
+const sex = [
+  "Male",
+  "Female",
+];
+const educationLevel = [
+  "Elementary",
+  "High School",
+  "College",
+  "Masters/ PhD.",
+  "Others"
+];
 
 const ReviewSummary = () => {
   const [searchParams] = useSearchParams();
@@ -8,6 +39,9 @@ const ReviewSummary = () => {
   const customerFeedbackId = searchParams.get("customerFeedbackId");
   const [summaryData, setSummaryData] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const customerProfileId = new URLSearchParams(location.search).get('customerProfileId');
+  const [customerData, setCustomerData] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,6 +54,34 @@ const ReviewSummary = () => {
     };
     fetchData();
   }, [staffVisitId, customerFeedbackId]);
+
+  useEffect(() => {
+    const fetchCustomerData = async () => {
+      console.log("Customer Profile ID:", customerProfileId);
+      if (!customerProfileId) {
+        console.error("No customer profile ID provided.");
+        return;
+      }
+
+      try {
+        const response = await axios.get(`http://localhost:5000/api/customer-profiles/${customerProfileId}`);
+        setCustomerData(response.data);
+      } catch (error) {
+        if (error.response) {
+          console.error("Error fetching customer data:", error.response.data);
+          if (error.response.status === 404) {
+            console.error("Customer profile not found. Please check the ID.");
+          }
+        } else if (error.request) {
+          console.error("No response received from the server.");
+        } else {
+          console.error("Error:", error.message);
+        }
+      }
+    };
+
+    fetchCustomerData();
+  }, [customerProfileId]);
 
   const handleSubmitReview = async () => {
     const reviewData = {
@@ -37,6 +99,12 @@ const ReviewSummary = () => {
     }
   };
 
+  if (!summaryData) {
+    return <div>Loading...</div>;
+  }
+
+  const { staffVisit } = summaryData;
+
   return (
     <div className="max-w-4xl mx-auto p-6">
       <div className="border rounded-lg shadow-md">
@@ -53,45 +121,88 @@ const ReviewSummary = () => {
               <p>Rev 1/04-25-16</p>
             </div>
           </div>
+          <div className="flex justify-between mt-4">
+            <div className="flex-1">
+              <p><strong>Date of visit/encounter:</strong> {new Date().toLocaleDateString()}</p>
+            </div>
+            <div className="flex-1 text-right">
+              <p><strong>Attending Staff:</strong> {summaryData.staffVisit.attendingStaff || 'N/A'}</p>
+            </div>
+          </div>
         </div>
 
         {summaryData && (
           <div className="p-4">
-            {/* Staff Section */}
-            <div className="mb-6 border-b pb-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <p className="font-semibold">Date of visit/encounter:</p>
-                  <p>{new Date(summaryData.staffVisit.dateOfVisit).toLocaleDateString()}</p>
+            {/* Services Inquired Section */}
+            <h2 className="text-lg font-semibold mb-4">Services Inquired on/availed:</h2>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
+                <div className="flex flex-col">
+                  {Object.entries(staffVisit.technoTransfer.sectors).map(([key, value]) => (
+                    <div key={key} className="flex items-center">
+                      <input type="checkbox" checked={value} readOnly />
+                      <span className="ml-2">{key.replace(/([A-Z])/g, ' $1')}</span>
+                    </div>
+                  ))}
+                  {staffVisit.technoTransfer.othersSpecify && (
+                    <div className="flex items-center">
+                      <input type="checkbox" checked={true} readOnly />
+                      <span className="ml-2">Others: {staffVisit.technoTransfer.othersSpecify}</span>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <p className="font-semibold">Attending Staff:</p>
-                  <p>{summaryData.staffVisit.attendingStaff}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Technical Consultancy</h3>
+                <div className="flex flex-col">
+                  {Object.entries(staffVisit.technoConsultancy.services).map(([key, value]) => (
+                    <div key={key} className="flex items-center">
+                      <input type="checkbox" checked={value} readOnly />
+                      <span className="ml-2">{key}</span>
+                    </div>
+                  ))}
+                  {staffVisit.technoConsultancy.othersSpecify && (
+                    <div className="flex items-center">
+                      <input type="checkbox" checked={true} readOnly />
+                      <span className="ml-2">Others: {staffVisit.technoConsultancy.othersSpecify}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Services Section */}
+            {/* Additional Services Section */}
             <div className="mb-6 border-b pb-4">
-              <h2 className="text-lg font-semibold mb-4">Services Inquired on/availed:</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold mb-2">Technology Transfer & Commercialization (SETUP/GIA)</h3>
-                  <ul className="space-y-1">
-                    <li>[ ] Food Processing</li>
-                    <li>[ ] Gifts, Housewares, Decors</li>
-                    <li>[ ] Agri./Horticulture</li>
-                    <li>[ ] Aquaculture/Marine</li>
-                    <li>[ ] Furniture</li>
-                  </ul>
+              <h2 className="text-lg font-semibold mb-4">Additional Services</h2>
+              <div className="flex flex-col">
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.projectProposalPreparation} readOnly />
+                  <span className="ml-2">Project Proposal Preparation</span>
                 </div>
-                <div>
-                  <h3 className="font-semibold mb-2">Technical Consultancy</h3>
-                  <ul className="space-y-1">
-                    <li>[ ] MPEX</li>
-                    <li>[ ] CAPE</li>
-                    <li>[ ] CPT</li>
-                  </ul>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.packagingAndLabeling} readOnly />
+                  <span className="ml-2">Packaging and Labeling</span>
+                </div>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.technologyTraining} readOnly />
+                  <span className="ml-2">Technology Training</span>
+                </div>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.scholarship} readOnly />
+                  <span className="ml-2">Scholarship</span>
+                </div>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.library.enabled} readOnly />
+                  <span className="ml-2">Library Services</span>
+                </div>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.laboratory.enabled} readOnly />
+                  <span className="ml-2">Laboratory Services</span>
+                </div>
+                <div className="flex items-center">
+                  <input type="checkbox" checked={staffVisit.others.enabled} readOnly />
+                  <span className="ml-2">Others: {staffVisit.others.specify}</span>
                 </div>
               </div>
             </div>
@@ -105,12 +216,43 @@ const ReviewSummary = () => {
                   <p><strong>Organization:</strong> {summaryData.customerProfile?.organizationName || 'N/A'}</p>
                   <p><strong>Address:</strong> {summaryData.customerProfile?.address || 'N/A'}</p>
                   <p><strong>Contact:</strong> {summaryData.customerProfile?.contactInfo || 'N/A'}</p>
+                  <p><strong>Classification:</strong></p>
+                  <ul className="list-none pl-0">
+                    {classifications.map((option) => (
+                      <li key={option}>
+                        {summaryData.customerProfile?.classification === option ? `[✓] ${option}` : `[ ] ${option}`}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
                 <div>
                   <p><strong>First Visit:</strong> {summaryData.customerProfile?.firstVisit ? '[ ✓ ] Yes' : '[ ✓ ] No'}</p>
-                  <p><strong>Gender:</strong> {summaryData.customerProfile?.sex === 'Male' ? '[ ✓ ] Male' : '[ ✓ ] Female'}</p>
-                  <p><strong>Age Group:</strong> {summaryData.customerProfile?.ageGroup}</p>
+                  <p><strong>Sex:</strong></p>
+                  <ul className="list-none pl-0">
+                    {sex.map((option) => (
+                      <li key={option}>
+                        {summaryData.customerProfile?.sex === option ? `[✓] ${option}` : `[ ] ${option}`}
+                      </li>
+                    ))}
+                  </ul>
                   <p><strong>PWD:</strong> {summaryData.customerProfile?.disability ? '[ ✓ ] Yes' : '[ ✓ ] No'}</p>
+                  
+                  <p><strong>Age Group:</strong></p>
+                  <ul className="list-none pl-0">
+                    {ageGroup.map((option) => (
+                      <li key={option}>
+                        {summaryData.customerProfile?.ageGroup === option ? `[✓] ${option}` : `[ ] ${option}`}
+                      </li>
+                    ))}
+                  </ul>
+                  <p><strong>Level of Education:</strong></p>
+                  <ul className="list-none pl-0">
+                    {educationLevel.map((option) => (
+                      <li key={option}>
+                        {summaryData.customerProfile?.educationLevel === option ? `[✓] ${option}` : `[ ] ${option}`}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -158,6 +300,9 @@ const ReviewSummary = () => {
                   <span>Not at all likely</span>
                   <span>Extremely likely</span>
                 </div>
+                <p><strong>Suggestions:</strong> <br ></br>
+                {summaryData.customerFeedback?.suggestions || 'N/A'}</p>
+
               </div>
             </div>
 
