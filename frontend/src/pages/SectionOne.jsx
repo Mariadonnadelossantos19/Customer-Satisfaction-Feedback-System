@@ -1,3 +1,4 @@
+//THIS IS THE INPUT FIELD FOR CUSTOMER PROFILE
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";

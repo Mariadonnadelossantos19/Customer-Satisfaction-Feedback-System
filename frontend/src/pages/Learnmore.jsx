@@ -1,9 +1,30 @@
-import React from "react";
+//this is the page for LEARN MORE
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, MessageSquare, Star, ThumbsUp, CheckCircle } from "lucide-react";
 
 const LearnMore = () => {
+  const [feedbackData, setFeedbackData] = useState([]);
+
+  useEffect(() => {
+    const fetchFeedback = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/customer-feedback/all');
+        const data = await response.json();
+        if (response.ok) {
+          setFeedbackData(data);
+        } else {
+          console.error('Failed to fetch feedback:', data.message);
+        }
+      } catch (error) {
+        console.error('Error fetching feedback:', error);
+      }
+    };
+
+    fetchFeedback();
+  }, []);
+
   const features = [
     {
       icon: <MessageSquare className="w-8 h-8 text-blue-600" />,
@@ -42,16 +63,12 @@ const LearnMore = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="space-y-2 mb-6">
-              <p className="text-lg tracking-wide font-light">DISCOVER • LEARN • INNOVATE</p>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">Welcome to DOST</h1>
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">Greetings!</h1>
             <h2 className="text-3xl md:text-4xl font-bold text-blue-300 mb-8">
-              Customer Satisfaction Feedback System
+              We Value Your Feedback
             </h2>
             <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
-              Please take a moment to complete this short survey. Your responses will remain
-              confidential and are greatly appreciated.
+              Please take a moment to complete our customer feedback form. Your insights are crucial for us to enhance our services and ensure your satisfaction.
             </p>
             <motion.div
               initial={{ opacity: 0 }}
@@ -63,15 +80,8 @@ const LearnMore = () => {
                 to="/staff-input"
                 className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors inline-flex items-center gap-2 font-semibold"
               >
-                Get Started
+                Start Feedback Form
                 <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/learn-more"
-                className="px-8 py-3 border-2 border-white hover:bg-white/10 rounded-md transition-colors inline-flex items-center gap-2 font-semibold"
-              >
-                Learn More
-                <ChevronRight className="w-5 h-5" />
               </Link>
             </motion.div>
           </motion.div>
@@ -202,6 +212,9 @@ const LearnMore = () => {
           </motion.div>
         </div>
       </section>
+
+      
+
 
       {/* Footer */}
       <footer className="bg-[#1a237e] text-white">

@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 
 const CustomerFeedback = () => {
   const navigate = useNavigate();
+  // THIS IS THE PAGE WHERE  THE CUSTOMER GIVE FEEDBACK
   const [searchParams] = useSearchParams();
   const customerProfileId = searchParams.get("customerProfileId");
   const staffVisitId = searchParams.get("staffVisitId");
@@ -19,7 +20,7 @@ const CustomerFeedback = () => {
       staffAttitude: "",
       overallPerception: "",
     },
-    recommendationScore: "",
+    recommendationScore: null,
     suggestions: "",
   });
 
@@ -53,11 +54,11 @@ const CustomerFeedback = () => {
     }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "recommendationScore" ? Number(value) : value,
+      [name]: value,
     }));
   };
 
@@ -122,7 +123,10 @@ const CustomerFeedback = () => {
                         <button
                           type="button"
                           key={value}
-                          onClick={() => handleSatisfactionChange(key, value)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleSatisfactionChange(key, value);
+                          }}
                           className={`flex flex-col items-center p-4 rounded-lg transition-all duration-200 
                             ${color} hover:opacity-90 
                             ${formData.satisfaction[key] === Number(value) 
@@ -147,7 +151,10 @@ const CustomerFeedback = () => {
                 {Array.from({ length: 11 }, (_, index) => (
                   <button
                     key={index}
-                    onClick={() => handleInputChange({ target: { name: 'recommendationScore', value: index } })}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleInputChange({ target: { name: 'recommendationScore', value: index } });
+                    }}
                     className={`w-10 h-10 flex items-center justify-center rounded-full border-2 transition-colors duration-200 
                       ${formData.recommendationScore === index ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-gray-700 border-gray-300 hover:bg-blue-100'}`}
                   >

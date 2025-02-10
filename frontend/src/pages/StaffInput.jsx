@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import dostbackground from '../assets/dostbg.jpg';
 
 const StaffInput = () => {
   const navigate = useNavigate();
@@ -120,292 +121,277 @@ const StaffInput = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-8 text-center">Staff Visit Input Form</h1>
-
-      {error && (
-        <div
-          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"
-          role="alert"
-        >
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div
-          className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4"
-          role="alert"
-        >
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-8">
-        <div className="space-y-6 bg-white p-8 rounded-lg shadow-lg">
-          {/* Header Section */}
-          <div className="bg-gray-200 p-6 rounded-t-lg">
-            <h2 className="text-xl font-semibold text-center">
-              To be filled out by DOST-MIMAROPA Staff
-            </h2>
-          </div>
-
-          {/* Date and Staff Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Date of visit/encounter:
-              </label>
-              <input
-                type="date"
-                name="dateOfVisit"
-                value={formData.dateOfVisit}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
-              />
+    <div className="min-h-screen flex flex-col relative" style={{ backgroundImage: `url(${dostbackground})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 to-blue-800/95"></div>
+      <div className="relative z-10 max-w-4xl mx-auto p-6">
+        <div className="bg-white rounded-lg shadow-lg p-8 mt-10">
+          <h1 className="text-4xl font-bold mb-6 text-center text-blue-800">Staff Visit Input Form</h1>
+          
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+              {error}
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Attending Staff:
-              </label>
-              <input
-                type="text"
-                name="attendingStaff"
-                value={formData.attendingStaff}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
-              />
+          )}
+
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+              {success}
             </div>
-          </div>
+          )}
 
-          {/* Services Section */}
-          <div className="mt-8">
-            <h3 className="text-lg font-medium mb-6">
-              Services inquired on/availed:
-            </h3>
-
-            {/* TNA Checkbox */}
-            <div className="flex items-center mb-6">
-              <input
-                type="checkbox"
-                name="tna"
-                checked={formData.tna}
-                onChange={handleChange}
-                className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-              />
-              <label className="ml-3 text-sm text-gray-700">
-                Technology Needs Assessment (TNA)
-              </label>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Date of Visit</label>
+                <input
+                  type="date"
+                  name="dateOfVisit"
+                  value={formData.dateOfVisit}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-3"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Attending Staff</label>
+                <input
+                  type="text"
+                  name="attendingStaff"
+                  value={formData.attendingStaff}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-3"
+                />
+              </div>
             </div>
 
-            {/* Techno Transfer Section */}
-            <div className="ml-4 mb-6">
-              <div className="flex items-center">
+            {/* Services Section */}
+            <div className="mt-8">
+              <h3 className="text-lg font-medium mb-6">
+                Services inquired on/availed:
+              </h3>
+
+              {/* TNA Checkbox */}
+              <div className="flex items-center mb-6">
                 <input
                   type="checkbox"
-                  name="technoTransfer.enabled"
-                  checked={formData.technoTransfer.enabled}
+                  name="tna"
+                  checked={formData.tna}
                   onChange={handleChange}
                   className="h-5 w-5 text-indigo-600 rounded border-gray-300"
                 />
                 <label className="ml-3 text-sm text-gray-700">
-                  Techno. Transfer & Commercialization (SETUP/GIA)
+                  Technology Needs Assessment (TNA)
                 </label>
               </div>
 
-              {formData.technoTransfer.enabled && (
-                <div className="ml-6 mt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(formData.technoTransfer.sectors).map(
-                      ([key, value]) =>
-                        key !== "others" && (
-                          <div key={key} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={value}
-                              onChange={handleNestedChange(
-                                "technoTransfer",
-                                "sectors",
-                                key
-                              )}
-                              className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-                            />
-                            <label className="ml-3 text-sm text-gray-700">
-                              {key
-                                .replace(/([A-Z])/g, " $1")
-                                .replace(/^./, (str) => str.toUpperCase())}
-                            </label>
-                          </div>
-                        )
-                    )}
-                  </div>
-                  {formData.technoTransfer.sectors.others && (
-                    <input
-                      type="text"
-                      name="technoTransfer.othersSpecify"
-                      value={formData.technoTransfer.othersSpecify}
-                      onChange={handleChange}
-                      placeholder="Please specify"
-                      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Techno Consultancy */}
-            <div className="ml-4 mb-6">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="technoConsultancy.enabled"
-                  checked={formData.technoConsultancy.enabled}
-                  onChange={handleChange}
-                  className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-                />
-                <label className="ml-3 text-sm text-gray-700">
-                  Techno. Consultancy
-                </label>
-              </div>
-
-              {formData.technoConsultancy.enabled && (
-                <div className="ml-6 mt-2">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(formData.technoConsultancy.services).map(
-                      ([key, value]) =>
-                        key !== "others" && (
-                          <div key={key} className="flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={value}
-                              onChange={handleNestedChange(
-                                "technoConsultancy",
-                                "services",
-                                key
-                              )}
-                              className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-                            />
-                            <label className="ml-3 text-sm text-gray-700">
-                              {key.toUpperCase()}
-                            </label>
-                          </div>
-                        )
-                    )}
-                  </div>
-                  {formData.technoConsultancy.services.others && (
-                    <input
-                      type="text"
-                      name="technoConsultancy.othersSpecify"
-                      value={formData.technoConsultancy.othersSpecify}
-                      onChange={handleChange}
-                      placeholder="Please specify"
-                      className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Other Services */}
-            <div className="space-y-4">
-              {[
-                {
-                  name: "projectProposalPreparation",
-                  label: "Project Proposal Preparation",
-                },
-                {
-                  name: "packagingAndLabeling",
-                  label: "Packaging and Labeling",
-                },
-                { name: "technologyTraining", label: "Technology Training" },
-                { name: "scholarship", label: "Scholarship" },
-              ].map((service) => (
-                <div key={service.name} className="flex items-center">
+              {/* Techno Transfer Section */}
+              <div className="ml-4 mb-6">
+                <div className="flex items-center">
                   <input
                     type="checkbox"
-                    name={service.name}
-                    checked={formData[service.name]}
+                    name="technoTransfer.enabled"
+                    checked={formData.technoTransfer.enabled}
                     onChange={handleChange}
                     className="h-5 w-5 text-indigo-600 rounded border-gray-300"
                   />
                   <label className="ml-3 text-sm text-gray-700">
-                    {service.label}
+                    Techno. Transfer & Commercialization (SETUP/GIA)
+                  </label>
+                </div>
+
+                {formData.technoTransfer.enabled && (
+                  <div className="ml-6 mt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(formData.technoTransfer.sectors).map(
+                        ([key, value]) =>
+                          key !== "others" && (
+                            <div key={key} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={value}
+                                onChange={handleNestedChange(
+                                  "technoTransfer",
+                                  "sectors",
+                                  key
+                                )}
+                                className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                              />
+                              <label className="ml-3 text-sm text-gray-700">
+                                {key
+                                  .replace(/([A-Z])/g, " $1")
+                                  .replace(/^./, (str) => str.toUpperCase())}
+                              </label>
+                            </div>
+                          )
+                      )}
+                    </div>
+                    {formData.technoTransfer.sectors.others && (
+                      <input
+                        type="text"
+                        name="technoTransfer.othersSpecify"
+                        value={formData.technoTransfer.othersSpecify}
+                        onChange={handleChange}
+                        placeholder="Please specify"
+                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Techno Consultancy */}
+              <div className="ml-4 mb-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="technoConsultancy.enabled"
+                    checked={formData.technoConsultancy.enabled}
+                    onChange={handleChange}
+                    className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                  />
+                  <label className="ml-3 text-sm text-gray-700">
+                    Techno. Consultancy
+                  </label>
+                </div>
+
+                {formData.technoConsultancy.enabled && (
+                  <div className="ml-6 mt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Object.entries(formData.technoConsultancy.services).map(
+                        ([key, value]) =>
+                          key !== "others" && (
+                            <div key={key} className="flex items-center">
+                              <input
+                                type="checkbox"
+                                checked={value}
+                                onChange={handleNestedChange(
+                                  "technoConsultancy",
+                                  "services",
+                                  key
+                                )}
+                                className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                              />
+                              <label className="ml-3 text-sm text-gray-700">
+                                {key.toUpperCase()}
+                              </label>
+                            </div>
+                          )
+                      )}
+                    </div>
+                    {formData.technoConsultancy.services.others && (
+                      <input
+                        type="text"
+                        name="technoConsultancy.othersSpecify"
+                        value={formData.technoConsultancy.othersSpecify}
+                        onChange={handleChange}
+                        placeholder="Please specify"
+                        className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Other Services */}
+              <div className="space-y-4">
+                {[
+                  {
+                    name: "projectProposalPreparation",
+                    label: "Project Proposal Preparation",
+                  },
+                  {
+                    name: "packagingAndLabeling",
+                    label: "Packaging and Labeling",
+                  },
+                  { name: "technologyTraining", label: "Technology Training" },
+                  { name: "scholarship", label: "Scholarship" },
+                ].map((service) => (
+                  <div key={service.name} className="flex items-center">
+                    <input
+                      type="checkbox"
+                      name={service.name}
+                      checked={formData[service.name]}
+                      onChange={handleChange}
+                      className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                    />
+                    <label className="ml-3 text-sm text-gray-700">
+                      {service.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+
+              {/* Special Services */}
+              {["technologyClinics", "laboratory", "library"].map((service) => (
+                <div key={service} className="flex items-center mt-4">
+                  <input
+                    type="checkbox"
+                    name={`${service}.enabled`}
+                    checked={formData[service].enabled}
+                    onChange={handleChange}
+                    className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                  />
+                  <label className="ml-3 text-sm text-gray-700">
+                    {formData[service].name ||
+                      service
+                        .replace(/([A-Z])/g, " $1")
+                        .replace(/^./, (str) => str.toUpperCase())}
                   </label>
                 </div>
               ))}
-            </div>
 
-            {/* Special Services */}
-            {["technologyClinics", "laboratory", "library"].map((service) => (
-              <div key={service} className="flex items-center mt-4">
-                <input
-                  type="checkbox"
-                  name={`${service}.enabled`}
-                  checked={formData[service].enabled}
-                  onChange={handleChange}
-                  className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-                />
-                <label className="ml-3 text-sm text-gray-700">
-                  {formData[service].name ||
-                    service
-                      .replace(/([A-Z])/g, " $1")
-                      .replace(/^./, (str) => str.toUpperCase())}
+              {/* Others */}
+              <div className="mt-6">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="others.enabled"
+                    checked={formData.others.enabled}
+                    onChange={handleChange}
+                    className="h-5 w-5 text-indigo-600 rounded border-gray-300"
+                  />
+                  <label className="ml-3 text-sm text-gray-700">Others</label>
+                </div>
+                {formData.others.enabled && (
+                  <input
+                    type="text"
+                    name="others.specify"
+                    value={formData.others.specify}
+                    onChange={handleChange}
+                    placeholder="Please specify"
+                    className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                  />
+                )}
+              </div>
+
+              {/* Referral Source */}
+              <div className="mt-8">
+                <label className="block text-sm font-medium text-gray-700">
+                  How did you know of our services?
                 </label>
-              </div>
-            ))}
-
-            {/* Others */}
-            <div className="mt-6">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="others.enabled"
-                  checked={formData.others.enabled}
-                  onChange={handleChange}
-                  className="h-5 w-5 text-indigo-600 rounded border-gray-300"
-                />
-                <label className="ml-3 text-sm text-gray-700">Others</label>
-              </div>
-              {formData.others.enabled && (
                 <input
                   type="text"
-                  name="others.specify"
-                  value={formData.others.specify}
+                  name="referralSource"
+                  value={formData.referralSource}
                   onChange={handleChange}
-                  placeholder="Please specify"
-                  className="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
+                  required
+                  placeholder="i.e. friend referral, TV, radio, newspaper, Internet, fairs/forums, etc."
+                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
                 />
-              )}
+              </div>
             </div>
 
-            {/* Referral Source */}
-            <div className="mt-8">
-              <label className="block text-sm font-medium text-gray-700">
-                How did you know of our services?
-              </label>
-              <input
-                type="text"
-                name="referralSource"
-                value={formData.referralSource}
-                onChange={handleChange}
-                required
-                placeholder="i.e. friend referral, TV, radio, newspaper, Internet, fairs/forums, etc."
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-lg text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-300"
-          >
-            {isLoading ? "Processing..." : "Next"}
-          </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-lg text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 transition duration-200"
+            >
+              {isLoading ? "Processing..." : "Submit"}
+            </button>
+          </form>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

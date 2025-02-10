@@ -14,8 +14,8 @@ const libraryUserFeedbackSchema = new mongoose.Schema({
   queriesAnswered: {
     type: Boolean,
     required: true,
-  },
-  subjectsOfInterest: {
+  }, subjectsOfInterest
+ : {
     agriHorticulture: { type: Boolean, default: false },
     aquacultureMarine: { type: Boolean, default: false },
     furniture: { type: Boolean, default: false },

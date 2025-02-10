@@ -1,3 +1,4 @@
+// THIS IS THE LANDING PAGE OF THE SYSTEM
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -72,7 +73,7 @@ const Landingpage = () => {
               className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
             >
               <Link
-                to="/staff-input"
+                to="/introduction"
                 className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-full 
                          transition-all duration-300 inline-flex items-center justify-center gap-2
                          text-lg font-medium hover:shadow-lg hover:shadow-blue-500/30"
