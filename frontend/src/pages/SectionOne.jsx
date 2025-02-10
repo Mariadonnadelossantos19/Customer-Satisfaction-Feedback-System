@@ -31,9 +31,9 @@ const SectionOne = () => {
   const [step, setStep] = useState(1); // Step state for multi-step form
 
   const steps = [
-    { id: 1, name: "Basic Information" },
+    { id: 1, name: "Personal Information" },
     { id: 2, name: "Classification" },
-    { id: 3, name: "Personal Information" },
+    { id: 3, name: "Basic Information" },
   ];
 
   const classifications = [
@@ -176,7 +176,7 @@ const SectionOne = () => {
                 <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
                   <h2 className="text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2">
                     <Home className="w-6 h-6 text-blue-600" />
-                    Basic Information
+                    Personal Information
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -292,7 +292,7 @@ const SectionOne = () => {
                 <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
                   <h2 className="text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2">
                     <Smile className="w-6 h-6 text-blue-600" />
-                    Personal Information
+                      Basic Information
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
