@@ -8,8 +8,8 @@ import Navbar from "./Components/Layout/Navbar"
 //import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
 import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore"
-
 import Introduction from "./pages/Introduction";
+import Admin from "./pages/Admin";
 
 
 
@@ -27,7 +27,8 @@ const App = () => {
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/learn-more" element={<Learnmore />} />
-       
+        <Route path="/Admin" element={<Admin />} />
+
         <Route path="/introduction" element={<Introduction />} />
         
 

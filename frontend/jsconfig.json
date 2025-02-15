@@ -5,7 +5,8 @@
            "@/*": ["src/*"]
          },
          "checkJs": true,
-         "composite": true
+         "composite": true,
+         "jsx": "react-jsx"
        },
        "include": ["src/**/*"],
        "exclude": ["node_modules"]
