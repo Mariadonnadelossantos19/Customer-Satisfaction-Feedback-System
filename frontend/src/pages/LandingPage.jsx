@@ -5,16 +5,16 @@ import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight } from "lucide-react";
 import dostbackground from '../assets/dostbg.jpg'
 
-const Landingpage = () => {
+const LandingPage = () => {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 to-blue-800">
       {/* Hero Section with Background Image */}
       <div className="relative h-screen overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dostbackground})` }}>
         {/* Overlay with multiple layers for depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-blue-800/90 to-blue-900/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-blue-900/90 to-blue-900/95" />
         
         {/* Pattern Overlay - adds subtle texture */}
-        <div className="absolute inset-0 opacity-10 bg-cover bg-center mix-blend-overlay"
+        <div className="absolute inset-0 opacity-30 bg-cover bg-center mix-blend-overlay"
              style={{
                backgroundImage: `url('/api/placeholder/1920/1080')`,
                backgroundSize: 'cover'
@@ -45,7 +45,7 @@ const Landingpage = () => {
               transition={{ delay: 0.4 }}
               className="space-y-4"
             >
-              <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+              <h1 className="text-4xl md:text-7xl font-bold tracking-tight">
                 Welcome to{" "}
                 <span className="text-blue-400">DOST</span>
               </h1>
@@ -74,19 +74,14 @@ const Landingpage = () => {
             >
               <Link
                 to="/introduction"
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-full 
-                         transition-all duration-300 inline-flex items-center justify-center gap-2
-                         text-lg font-medium hover:shadow-lg hover:shadow-blue-500/30"
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-full transition-all duration-300 inline-flex items-center justify-center gap-2 text-lg font-medium hover:shadow-lg hover:shadow-blue-500/30"
               >
                 Get Started
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 to="/learn-more"
-                className="px-8 py-4 border-2 border-white/80 hover:border-white
-                         rounded-full transition-all duration-300 inline-flex items-center 
-                         justify-center gap-2 text-lg font-medium
-                         hover:bg-white/10 hover:shadow-lg hover:shadow-white/20"
+                className="px-8 py-4 border-2 border-white/80 hover:border-white rounded-full transition-all duration-300 inline-flex items-center justify-center gap-2 text-lg font-medium hover:bg-white/10 hover:shadow-lg hover:shadow-white/20"
               >
                 Learn More
                 <ChevronRight className="w-5 h-5" />
@@ -99,4 +94,4 @@ const Landingpage = () => {
   );
 };
 
-export default Landingpage;
+export default LandingPage;

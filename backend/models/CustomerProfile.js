@@ -40,7 +40,7 @@ const customerProfileSchema = new mongoose.Schema({
   othersSpecify: String,
   isFirstVisit: {
     type: Boolean,
-    required: true,
+    default: false,
   },
   sex: {
     type: String,
@@ -70,10 +70,15 @@ const customerProfileSchema = new mongoose.Schema({
     required: true,
   },
   educationOthersSpecify: String,
+  disability: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
-});
+}, { timestamps: true });
 
-module.exports = mongoose.model("CustomerProfile", customerProfileSchema);
+const CustomerProfile = mongoose.model("CustomerProfile", customerProfileSchema);
+module.exports = CustomerProfile;

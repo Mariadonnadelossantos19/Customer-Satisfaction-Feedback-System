@@ -15,4 +15,17 @@ router.get('/all', async (req, res) => {
   }
 });
 
+// Get all feedback for a specific customer profile
+router.get('/', async (req, res) => {
+  const { customerProfileId } = req.query;
+  try {
+    const feedback = await CustomerFeedback.find({ customerProfile: customerProfileId })
+      .populate('customerProfile')
+      .sort({ createdAt: -1 });
+    res.json(feedback);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching feedback data' });
+  }
+});
+
 module.exports = router; 

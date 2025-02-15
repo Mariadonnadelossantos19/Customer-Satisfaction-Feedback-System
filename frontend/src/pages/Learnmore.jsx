@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, ChevronRight, MessageSquare, Star, ThumbsUp, CheckCircle } from "lucide-react";
+import picture from '../assets/dostbg.jpg'
 
 const LearnMore = () => {
   const [feedbackData, setFeedbackData] = useState([]);
@@ -50,11 +51,14 @@ const LearnMore = () => {
         {/* Background Image Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/90">
           <img
-            src="https://via.placeholder.com/1920x500" // Replace with your actual image
+            src={picture} // Replace with your actual image
             alt="Background"
             className="w-full h-full object-cover"
           />
         </div>
+        <div className="absolute inset-0 bg-blue-900 opacity-90"></div>
+        {/* Overlay for text highlighting */}
+        <div className="absolute inset-0 bg-black opacity-0"></div>
 
         {/* Content Overlay */}
         <div className="relative h-full max-w-7xl mx-auto px-4 flex flex-col justify-center items-center text-white text-center">
@@ -63,13 +67,9 @@ const LearnMore = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">Greetings!</h1>
-            <h2 className="text-3xl md:text-4xl font-bold text-blue-300 mb-8">
-              We Value Your Feedback
-            </h2>
-            <p className="text-xl text-gray-200 max-w-2xl mx-auto mb-8">
-              Please take a moment to complete our customer feedback form. Your insights are crucial for us to enhance our services and ensure your satisfaction.
-            </p>
+            <h1 className="text-6xl md:text-7xl font-extrabold mb-6 drop-shadow-lg">Welcome to Our Services!</h1>
+            <h2 className="text-4xl md:text-5xl font-semibold text-blue-200 mb-8 drop-shadow-md">We Value Your Feedback</h2>
+            <p className="text-xl md:text-2xl text-gray-200 max-w-2xl mx-auto mb-8">Your insights are crucial for us to enhance our services and ensure your satisfaction. Please take a moment to complete our customer feedback form.</p>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -78,10 +78,9 @@ const LearnMore = () => {
             >
               <Link
                 to="/staff-input"
-                className="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors inline-flex items-center gap-2 font-semibold"
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 rounded-md transition-colors shadow-lg transform hover:scale-105 font-semibold text-lg"
               >
                 Start Feedback Form
-                <ArrowRight className="w-5 h-5" />
               </Link>
             </motion.div>
           </motion.div>

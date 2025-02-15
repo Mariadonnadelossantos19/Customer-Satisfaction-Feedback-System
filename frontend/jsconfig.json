@@ -1,0 +1,13 @@
+{
+       "compilerOptions": {
+         "baseUrl": ".",
+         "paths": {
+           "@/*": ["src/*"]
+         },
+         "checkJs": true,
+         "composite": true
+       },
+       "include": ["src/**/*"],
+       "exclude": ["node_modules"]
+     }
+     

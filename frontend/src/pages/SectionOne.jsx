@@ -1,9 +1,29 @@
+import React from 'react';
 //THIS IS THE INPUT FIELD FOR CUSTOMER PROFILE
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Briefcase, User, School, Globe, CheckCircle, Info, Home, Phone, Mail, UserCheck, Calendar, Book, Smile, ArrowRight, ArrowLeft } from 'lucide-react';
-import dostbackground from '../assets/dostbg.jpg';
+import { Tooltip } from 'react-tooltip';
+import Navbar from "../Components/Layout/Navbar";
+import feedback from "../assets/feedback.gif"; // Consider using a more dynamic GIF or video
+import { FiX } from 'react-icons/fi';
+import { FiCheckSquare } from 'react-icons/fi';
+
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="fixed inset-0 bg-black/30" aria-hidden="true" onClick={onClose} />
+      <div className="flex min-h-full items-center justify-center p-4">
+        <div className="relative bg-white rounded-2xl shadow-xl max-w-2xl w-full mx-auto">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const SectionOne = () => {
   const [searchParams] = useSearchParams();
@@ -30,6 +50,7 @@ const SectionOne = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [step, setStep] = useState(1); // Step state for multi-step form
+  const [showSummary, setShowSummary] = useState(false);
 
   const steps = [
     { id: 1, name: "Personal Information" },
@@ -77,23 +98,23 @@ const SectionOne = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    // Clear error when user makes changes
+    if (error) setError("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setShowSummary(true);
+  };
+
+  const handleFinalSubmit = async () => {
     try {
-      const response = await axios.post(
-        "http://localhost:5000/api/customer-profiles",
-        formData
-      );
-      setSuccess(true);
-      setError("");
-      navigate(
-        `/customer-feedback?customerProfileId=${response.data._id}&staffVisitId=${staffVisitId}`
-      );
+      const response = await axios.post("http://localhost:5000/api/customer-profiles", formData);
+      if (response.data) {
+        navigate(`/customer-feedback?customerProfileId=${response.data._id}&staffVisitId=${staffVisitId}`);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "An error occurred");
-      setSuccess(false);
+      setError(err.response?.data?.message || "An error occurred while submitting the form.");
     }
   };
 
@@ -106,319 +127,359 @@ const SectionOne = () => {
   };
 
   return (
-    <div className="relative h-screen overflow-hidden bg-cover bg-center" style={{ backgroundImage: `url(${dostbackground})` }}>
-      {/* Overlay with multiple layers for depth */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/95 via-blue-800/90 to-blue-900/95" />
-      
-      {/* Pattern Overlay - adds subtle texture */}
-      <div className="absolute inset-0 opacity-10 bg-cover bg-center mix-blend-overlay"
-           style={{
-             backgroundImage: `url('/api/placeholder/1920/1080')`,
-             backgroundSize: 'cover'
-           }} />
-
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white rounded-xl shadow-lg p-8 md:p-10">
-            {/* Progress Indicator */}
-            <div className="mb-6">
-              <div className="flex justify-between items-center">
-                {steps.map((s, index) => (
-                  <div key={s.id} className="flex items-center">
-                    <div
-                      className={`w-8 h-8 flex items-center justify-center rounded-full ${
-                        step === s.id
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-200 text-gray-700"
-                      }`}
-                    >
-                      {s.id}
-                    </div>
-                    <div
-                      className={`ml-2 text-sm font-medium ${
-                        step === s.id ? "text-blue-600" : "text-gray-500"
-                      }`}
-                    >
-                      {s.name}
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className="mx-2 w-8 h-0.5 bg-gray-300"></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold mb-2 text-blue-800 flex items-center justify-center gap-2">
-                <UserCheck className="w-8 h-8 text-blue-600" />
-                Customer Profile Form
-              </h1>
-              <p className="text-gray-600">Please fill in your information below</p>
-            </div>
-
-            {error && (
-              <div className="flex items-center bg-red-50 border-l-4 border-red-500 p-4 mb-4 rounded">
-                <svg className="w-5 h-5 text-red-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11h-2v-2h2v2zm0-4h-2V7h2v2z" /></svg>
-                <p className="text-red-700">{error}</p>
-              </div>
-            )}
-
-            {success && (
-              <div className="flex items-center bg-green-50 border-l-4 border-green-500 p-4 mb-4 rounded">
-                <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 11h-2v-2h2v2zm0-4h-2V7h2v2z" /></svg>
-                <p className="text-green-700">Profile created successfully!</p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Step 1: Basic Information */}
-              {step === 1 && (
-                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                    <Home className="w-6 h-6 text-blue-600" />
-                    Personal Information
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                        <input
-                          type="text"
-                          name="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Organization Name</label>
-                        <input
-                          type="text"
-                          name="organizationName"
-                          value={formData.organizationName}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                        <textarea
-                          name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                          rows="2"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Contact Information</label>
-                        <input
-                          type="text"
-                          name="contactInfo"
-                          value={formData.contactInfo}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-6 px-4">
+      <Navbar />
+      <div className="flex justify-center items-start mt-12">
+        <div className="max-w-5xl w-full flex flex-col md:flex-row gap-8 my-12">
+          <div className="bg-white rounded-xl shadow-md overflow-hidden w-full md:w-3/5 mx-auto">
+            <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
+              <div className="flex items-center justify-center gap-3">
+                <div className="p-2 bg-white/10 rounded-lg">
+                  <User size={20} className="text-white" />
                 </div>
-              )}
+                <div>
+                  <h1 className="text-xl text-white font-semibold">Customer Profile</h1>
+                  <p className="text-sm text-white/80">Help us serve you better</p>
+                </div>
+              </div>
+            </div>
 
-              {/* Step 2: Classification */}
-              {step === 2 && (
-                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                    <Briefcase className="w-6 h-6 text-blue-600" />
-                    Classification
-                  </h2>
-                  <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="p-8 pt-8">
+              <div className="flex items-center justify-center mb-8">
+                <div className="flex items-center gap-4 text-sm">
+                  {steps.map((s, index) => (
+                    <React.Fragment key={s.id}>
+                      <div className="flex items-center">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center
+                          ${step === s.id 
+                            ? "bg-blue-500 text-white"
+                            : step > s.id
+                            ? "bg-green-500 text-white"
+                            : "bg-gray-200 text-gray-600"}
+                        `}>
+                          {step > s.id ? <CheckCircle className="w-4 h-4" /> : s.id}
+                        </div>
+                        <span className={`ml-2 ${step === s.id ? "text-blue-600" : "text-gray-600"}`}>
+                          {s.name}
+                        </span>
+                      </div>
+                      {index < steps.length - 1 && (
+                        <div className={`h-0.5 w-12 ${
+                          step > index + 1 ? "bg-green-500" : "bg-gray-200"
+                        }`} />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              </div>
+
+              <div className="max-w-xl mx-auto space-y-4">
+                {step === 1 && (
+                  <div className="space-y-3">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Select Classification</label>
-                      <select
-                        name="classification"
-                        value={formData.classification}
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Full Name</label>
+                      <input
+                        type="text"
+                        name="name"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.name}
                         onChange={handleInputChange}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Organization Name</label>
+                      <input
+                        type="text"
+                        name="organizationName"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.organizationName}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Address</label>
+                      <input
+                        type="text"
+                        name="address"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.address}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Contact Information</label>
+                      <input
+                        type="text"
+                        name="contactInfo"
+                        className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.contactInfo}
+                        onChange={handleInputChange}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {step === 2 && (
+                  <div className="grid grid-cols-2 gap-4">
+                    {classifications.map((item) => (
+                      <div
+                        key={item.name}
+                        onClick={() => handleInputChange({
+                          target: { name: "classification", value: item.name }
+                        })}
+                        className={`p-4 rounded-lg border cursor-pointer transition-all
+                          ${formData.classification === item.name 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-blue-200'}
+                        `}
                       >
-                        <option value="">Select Classification</option>
-                        {classifications.map((item) => (
-                          <option key={item.name} value={item.name}>{item.name}</option>
+                        <div className="flex items-center gap-3">
+                          {item.icon}
+                          <span className="text-sm text-gray-700">{item.name}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {step === 3 && (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Gender</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {['Male', 'Female'].map(gender => (
+                          <div
+                            key={gender}
+                            onClick={() => handleInputChange({ target: { name: 'sex', value: gender } })}
+                            className={`py-2 px-4 rounded-lg cursor-pointer text-center text-sm
+                              ${formData.sex === gender 
+                                ? 'bg-blue-50 text-blue-600 border border-blue-500' 
+                                : 'bg-gray-50 text-gray-600 border border-gray-200'}
+                            `}
+                          >
+                            {gender}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Age Group</label>
+                      <select
+                        name="ageGroup"
+                        className="w-full px-4 py-2 text-sm rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.ageGroup}
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Select Age Group</option>
+                        {ageGroups.map(age => (
+                          <option key={age} value={age}>{age}</option>
                         ))}
                       </select>
                     </div>
 
-                    {formData.classification === "Professional" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Specify Professional Type</label>
-                        <input
-                          type="text"
-                          name="professionalSpecify"
-                          value={formData.professionalSpecify}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        />
-                      </div>
-                    )}
-
-                    {formData.classification === "Others" && (
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Specify Other Classification</label>
-                        <input
-                          type="text"
-                          name="othersSpecify"
-                          value={formData.othersSpecify}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                        />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Step 3: Personal Information */}
-              {step === 3 && (
-                <div className="bg-gray-50 p-4 rounded-lg shadow-sm">
-                  <h2 className="text-xl font-semibold text-blue-800 mb-3 flex items-center gap-2">
-                    <Smile className="w-6 h-6 text-blue-600" />
-                      Basic Information
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <div className="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200">
-                        <input
-                          type="checkbox"
-                          name="isFirstVisit"
-                          checked={formData.isFirstVisit}
-                          onChange={handleInputChange}
-                          className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <label className="text-gray-700">First Visit</label>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Sex</label>
-                        <select
-                          name="sex"
-                          value={formData.sex}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        >
-                          <option value="">Select Sex</option>
-                          <option value="Male">Male</option>
-                          <option value="Female">Female</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Age Group</label>
-                        <select
-                          name="ageGroup"
-                          value={formData.ageGroup}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        >
-                          <option value="">Select Age Group</option>
-                          {ageGroups.map((age) => (
-                            <option key={age} value={age}>{age}</option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2 bg-white p-2 rounded-lg border border-gray-200">
-                        <input
-                          type="checkbox"
-                          name="isPwd"
-                          checked={formData.isPwd}
-                          onChange={handleInputChange}
-                          className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
-                        />
-                        <label className="text-gray-700">Person with Disability</label>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Education Level</label>
-                        <select
-                          name="educationLevel"
-                          value={formData.educationLevel}
-                          onChange={handleInputChange}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                          required
-                        >
-                          <option value="">Select Education Level</option>
-                          {educationLevels.map((level) => (
-                            <option key={level} value={level}>{level}</option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {formData.educationLevel === "Others" && (
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Specify Other Education Level</label>
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <label className="flex items-center cursor-pointer">
                           <input
-                            type="text"
-                            name="educationOthersSpecify"
-                            value={formData.educationOthersSpecify}
+                            type="checkbox"
+                            name="isFirstVisit"
+                            className="w-4 h-4 text-blue-600 rounded"
+                            checked={formData.isFirstVisit}
                             onChange={handleInputChange}
-                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                           />
-                        </div>
-                      )}
+                          <span className="ml-2 text-sm text-gray-600">First Visit</span>
+                        </label>
+                      </div>
+                      <div className="p-2 bg-blue-50 rounded-lg">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            name="isPwd"
+                            className="w-4 h-4 text-blue-600 rounded"
+                            checked={formData.isPwd}
+                            onChange={handleInputChange}
+                          />
+                          <span className="ml-2 text-sm text-gray-600">Person with Disability</span>
+                        </label>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1.5">Education Level</label>
+                      <select
+                        name="educationLevel"
+                        className="w-full px-4 py-2 text-sm rounded-lg border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={formData.educationLevel}
+                        onChange={handleInputChange}
+                      >
+                        <option value="">Select Education Level</option>
+                        {educationLevels.map(level => (
+                          <option key={level} value={level}>{level}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
-                </div>
-              )}
-
-              {/* Navigation Buttons */}
-              <div className="flex justify-between mt-6">
-                {step > 1 && (
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="flex items-center gap-2 bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                    Previous
-                  </button>
                 )}
+              </div>
 
-                {step < 3 ? (
+              <div className="flex justify-between mt-10 max-w-xl mx-auto">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  className={`px-6 py-2 text-gray-700 text-sm font-medium flex items-center gap-2 hover:bg-gray-50 rounded-lg ${
+                    step === 1 ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                  disabled={step === 1}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Previous
+                </button>
+                
+                {step < steps.length ? (
                   <button
                     type="button"
                     onClick={nextStep}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-6 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg flex items-center gap-2 hover:bg-blue-700"
                   >
-                    Next <ArrowRight className="w-5 h-5" />
+                    Next
+                    <ArrowRight className="w-4 h-4" />
                   </button>
                 ) : (
                   <button
                     type="submit"
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="px-6 py-2 bg-green-500 text-white text-sm font-medium rounded-lg flex items-center gap-2 hover:bg-green-600"
                   >
-                    Submit
+                    Submit Profile
+                    <CheckCircle className="w-4 h-4" />
                   </button>
                 )}
               </div>
             </form>
           </div>
+
+          <div className="hidden md:block w-2/5 relative rounded-xl overflow-hidden bg-gradient-to-b from-blue-50 to-blue-100">
+            <img 
+              src={feedback} 
+              alt="Customer Service" 
+              className="w-full h-full object-contain p-8" 
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-6 bg-blue-100">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Why we ask?</h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                This information helps us provide personalized services and improve your experience with us.
+                All data is kept confidential and secure.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
+
+      <Modal
+        isOpen={showSummary}
+        onClose={() => setShowSummary(false)}
+      >
+        <div className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Confirm Your Information
+            </h2>
+            <button
+              onClick={() => setShowSummary(false)}
+              className="text-gray-400 hover:text-gray-500"
+            >
+              <FiX className="w-5 h-5" />
+            </button>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Personal Information</h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Full Name:</span>
+                  <span className="text-sm font-medium">{formData.name}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Organization:</span>
+                  <span className="text-sm font-medium">{formData.organizationName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Address:</span>
+                  <span className="text-sm font-medium">{formData.address}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Contact Info:</span>
+                  <span className="text-sm font-medium">{formData.contactInfo}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Classification</h3>
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Category:</span>
+                  <span className="text-sm font-medium">{formData.classification}</span>
+                </div>
+                {formData.classification === "Professional" && formData.professionalSpecify && (
+                  <div className="flex justify-between mt-2">
+                    <span className="text-sm text-gray-500">Specified:</span>
+                    <span className="text-sm font-medium">{formData.professionalSpecify}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-medium text-gray-900 mb-2">Basic Information</h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Gender:</span>
+                  <span className="text-sm font-medium">{formData.sex}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Age Group:</span>
+                  <span className="text-sm font-medium">{formData.ageGroup}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Education Level:</span>
+                  <span className="text-sm font-medium">{formData.educationLevel}</span>
+                </div>
+                {formData.isFirstVisit && (
+                  <div className="flex items-center gap-2">
+                    <FiCheckSquare className="text-blue-500 w-4 h-4" />
+                    <span className="text-sm">First Visit</span>
+                  </div>
+                )}
+                {formData.isPwd && (
+                  <div className="flex items-center gap-2">
+                    <FiCheckSquare className="text-blue-500 w-4 h-4" />
+                    <span className="text-sm">Person with Disability</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex gap-3">
+            <button
+              type="button"
+              onClick={() => setShowSummary(false)}
+              className="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              Edit Response
+            </button>
+            <button
+              type="button"
+              onClick={handleFinalSubmit}
+              className="flex-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+            >
+              Confirm & Submit
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };

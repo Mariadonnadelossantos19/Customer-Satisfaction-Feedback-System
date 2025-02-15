@@ -8,8 +8,7 @@ import Navbar from "./Components/Layout/Navbar"
 //import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
 import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore"
-import AdminDasboard from "./Components/AdminDashboard/AdminDashboard";
-import CustomerfeedbackAdmin from "./Components/AdminDashboard/Customerfeedbackadmin";
+
 import Introduction from "./pages/Introduction";
 
 
@@ -28,9 +27,9 @@ const App = () => {
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/learn-more" element={<Learnmore />} />
-        <Route path="/admin-dashboard" element={<AdminDasboard />} />
+       
         <Route path="/introduction" element={<Introduction />} />
-        <Route path="/admin-Customer-feedback" element={< CustomerfeedbackAdmin/>} />
+        
 
         
 

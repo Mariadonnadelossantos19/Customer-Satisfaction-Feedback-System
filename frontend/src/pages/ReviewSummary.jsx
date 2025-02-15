@@ -50,10 +50,12 @@ const ReviewSummary = () => {
   const [searchParams] = useSearchParams();
   const staffVisitId = searchParams.get("staffVisitId");
   const customerFeedbackId = searchParams.get("customerFeedbackId");
+  const customerProfileId = searchParams.get("customerProfileId");
+
   const [summaryData, setSummaryData] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
-  const customerProfileId = new URLSearchParams(location.search).get('customerProfileId');
+  //const customerProfileId = new URLSearchParams(location.search).get('customerProfileId');
   const [customerData, setCustomerData] = useState(null);
   const componentRef = useRef();
 
@@ -98,6 +100,7 @@ const ReviewSummary = () => {
   }, [customerProfileId]);
 
   const handleSubmitReview = async () => {
+    // Ensure all necessary data is included
     const reviewData = {
       staffVisit: summaryData.staffVisit,
       customerProfile: summaryData.customerProfile,
@@ -105,11 +108,19 @@ const ReviewSummary = () => {
       libraryFeedback: summaryData.libraryFeedback,
     };
 
+    console.log("Review Data to be saved:", reviewData); // Log the review data for debugging
+
+    
     try {
-      await axios.post("http://localhost:5000/api/reviews", reviewData);
-      navigate('/thank-you');
+      const response = await axios.post("http://localhost:5000/api/review-summary", reviewData);
+      if (response.status === 201) {
+        navigate('/thank-you'); // Redirect to thank you page on success
+      } else {
+        throw new Error('Failed to submit review');
+      }
     } catch (error) {
       console.error("Error submitting review:", error);
+      alert(`Error: ${error.response?.data?.message || "An error occurred while submitting your review."}`);
     }
   };
 

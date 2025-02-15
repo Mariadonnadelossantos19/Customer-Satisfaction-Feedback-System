@@ -4,33 +4,12 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, Smile, Frown, Meh } from "lucide-react";
 import picture from "../assets/picture2.png"
+import feedback from '../assets/feedback.gif'
 
 const Introduction = () => {
   const [feedbackData, setFeedbackData] = useState([]);
 
-  useEffect(() => {
-    const fetchFeedback = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/customer-feedback/all');
-        const data = await response.json();
-        if (response.ok) {
-          setFeedbackData(data);
-        } else {
-          console.error('Failed to fetch feedback:', data.message);
-        }
-      } catch (error) {
-        console.error('Error fetching feedback:', error);
-      }
-    };
-
-    fetchFeedback();
-  }, []);
-
-  const getRatingIcon = (rating) => {
-    if (rating >= 4) return <Smile className="w-6 h-6 text-green-600" />;
-    if (rating >= 3) return <Meh className="w-6 h-6 text-yellow-500" />;
-    return <Frown className="w-6 h-6 text-red-600" />;
-  };
+ 
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -46,7 +25,8 @@ const Introduction = () => {
             className="space-y-8"
           >
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
-              Shape Our Service<br/>
+              Shape Our Service
+              <br />
               <span className="bg-gradient-to-r from-cyan-400 to-blue-300 bg-clip-text text-transparent">
                 With Your Feedback
               </span>
@@ -109,9 +89,9 @@ const Introduction = () => {
             className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/20"
           >
             <img
-              src={picture}
+              src={feedback}
               alt="Feedback process"
-              className="w-full h-full object-cover"
+             
             />
             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/30 to-transparent" />
           </motion.div>
