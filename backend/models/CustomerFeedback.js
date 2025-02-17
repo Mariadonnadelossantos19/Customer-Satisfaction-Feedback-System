@@ -18,7 +18,7 @@ const customerFeedbackSchema = new mongoose.Schema({
       required: true,
     },
     qualityOfService: {
-      type: Number,
+      type: Number, 
       enum: [1, 2, 3, 4, 5],
       required: true,
     },
@@ -56,6 +56,13 @@ const customerFeedbackSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+});
+
+customerFeedbackSchema.virtual("libraryUserFeedback", {
+  ref: "LibraryUserFeedback",
+  localField: "_id",
+  foreignField: "customerFeedback",
+  justOne: true
 });
 
 module.exports = mongoose.model("CustomerFeedback", customerFeedbackSchema);

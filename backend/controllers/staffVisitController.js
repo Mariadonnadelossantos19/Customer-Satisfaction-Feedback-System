@@ -15,6 +15,12 @@ const getStaffVisits = async (req, res) => {
   try {
     const staffVisits = await StaffVisit.find({})
       .populate("customerProfile")
+      .populate({
+        path: "customerProfile",
+        populate: {
+          path: "customerFeedback"
+        }
+      })
       .sort({ dateOfVisit: -1 });
     res.status(200).json(staffVisits);
   } catch (error) {

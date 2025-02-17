@@ -124,6 +124,106 @@ const ReviewSummary = () => {
     }
   };
 
+  // Function to render checkboxes with proper styling
+  const renderServiceCheckbox = (isChecked, label) => (
+    <div className="flex items-center">
+      <input 
+        type="checkbox" 
+        checked={isChecked} 
+        readOnly 
+        className="form-checkbox h-4 w-4 text-blue-600"
+      />
+      <span className="ml-2">{label}</span>
+    </div>
+  );
+
+  // Function to handle technology transfer services
+  const renderTechnoTransferServices = (technoTransfer) => {
+    if (!technoTransfer) return null;
+    
+    const sectors = {
+      agriHorticulture: "Agriculture & Horticulture",
+      aquacultureMarine: "Aquaculture & Marine",
+      furniture: "Furniture",
+      foodProcessing: "Food Processing",
+      giftsHousewaresDecors: "Gifts, Housewares & Decors",
+      healthAndPharma: "Health & Pharmaceutical",
+      ict: "ICT",
+      metalsAndEngineering: "Metals & Engineering"
+    };
+
+    return (
+      <div>
+        <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
+        <div className="flex flex-col">
+          {Object.entries(sectors).map(([key, label]) => (
+            renderServiceCheckbox(technoTransfer.sectors[key], label)
+          ))}
+          {technoTransfer.othersSpecify && (
+            renderServiceCheckbox(true, `Others: ${technoTransfer.othersSpecify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Function to handle technical consultancy services
+  const renderTechnoConsultancyServices = (technoConsultancy) => {
+    if (!technoConsultancy) return null;
+
+    const services = {
+      mpex: "MPEX",
+      cape: "CAPE",
+      cpe: "CPE",
+      energyAudit: "Energy Audit"
+    };
+
+    return (
+      <div>
+        <h3 className="font-semibold">Technical Consultancy</h3>
+        <div className="flex flex-col">
+          {Object.entries(services).map(([key, label]) => (
+            renderServiceCheckbox(technoConsultancy.services[key], label)
+          ))}
+          {technoConsultancy.othersSpecify && (
+            renderServiceCheckbox(true, `Others: ${technoConsultancy.othersSpecify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Function to handle additional services
+  const renderAdditionalServices = (staffVisit) => {
+    if (!staffVisit) return null;
+
+    const additionalServices = [
+      { key: 'projectProposalPreparation', label: 'Project Proposal Preparation' },
+      { key: 'packagingAndLabeling', label: 'Packaging and Labeling' },
+      { key: 'technologyTraining', label: 'Technology Training' },
+      { key: 'scholarship', label: 'Scholarship' },
+      { key: 'library', label: 'Library Services', isObject: true },
+      { key: 'laboratory', label: 'Laboratory Services', isObject: true }
+    ];
+
+    return (
+      <div className="mb-6 border-b pb-4">
+        <h2 className="text-lg font-semibold mb-4">Additional Services</h2>
+        <div className="flex flex-col">
+          {additionalServices.map(({ key, label, isObject }) => (
+            renderServiceCheckbox(
+              isObject ? staffVisit[key]?.enabled : staffVisit[key],
+              label
+            )
+          ))}
+          {staffVisit.others?.enabled && (
+            renderServiceCheckbox(true, `Others: ${staffVisit.others.specify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
+
   if (!summaryData) {
     return <div>Loading...</div>;
   }
@@ -159,79 +259,11 @@ const ReviewSummary = () => {
 
           {summaryData && (
             <div className="p-4">
-              {/* Services Inquired Section */}
-              <h2 className="text-lg font-semibold mb-4">Services Inquired on/availed:</h2>
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
-                  <div className="flex flex-col">
-                    {Object.entries(staffVisit.technoTransfer.sectors).map(([key, value]) => (
-                      <div key={key} className="flex items-center">
-                        <input type="checkbox" checked={value} readOnly />
-                        <span className="ml-2">{key.replace(/([A-Z])/g, ' $1')}</span>
-                      </div>
-                    ))}
-                    {staffVisit.technoTransfer.othersSpecify && (
-                      <div className="flex items-center">
-                        <input type="checkbox" checked={true} readOnly />
-                        <span className="ml-2">Others: {staffVisit.technoTransfer.othersSpecify}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  <h3 className="font-semibold">Technical Consultancy</h3>
-                  <div className="flex flex-col">
-                    {Object.entries(staffVisit.technoConsultancy.services).map(([key, value]) => (
-                      <div key={key} className="flex items-center">
-                        <input type="checkbox" checked={value} readOnly />
-                        <span className="ml-2">{key}</span>
-                      </div>
-                    ))}
-                    {staffVisit.technoConsultancy.othersSpecify && (
-                      <div className="flex items-center">
-                        <input type="checkbox" checked={true} readOnly />
-                        <span className="ml-2">Others: {staffVisit.technoConsultancy.othersSpecify}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                {renderTechnoTransferServices(summaryData.staffVisit.technoTransfer)}
+                {renderTechnoConsultancyServices(summaryData.staffVisit.technoConsultancy)}
               </div>
-
-              {/* Additional Services Section */}
-              <div className="mb-6 border-b pb-4">
-                <h2 className="text-lg font-semibold mb-4">Additional Services</h2>
-                <div className="flex flex-col">
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.projectProposalPreparation} readOnly />
-                    <span className="ml-2">Project Proposal Preparation</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.packagingAndLabeling} readOnly />
-                    <span className="ml-2">Packaging and Labeling</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.technologyTraining} readOnly />
-                    <span className="ml-2">Technology Training</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.scholarship} readOnly />
-                    <span className="ml-2">Scholarship</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.library.enabled} readOnly />
-                    <span className="ml-2">Library Services</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.laboratory.enabled} readOnly />
-                    <span className="ml-2">Laboratory Services</span>
-                  </div>
-                  <div className="flex items-center">
-                    <input type="checkbox" checked={staffVisit.others.enabled} readOnly />
-                    <span className="ml-2">Others: {staffVisit.others.specify}</span>
-                  </div>
-                </div>
-              </div>
+              {renderAdditionalServices(summaryData.staffVisit)}
 
               {/* Customer Profile Section */}
               <div className="mb-6 border-b pb-4">

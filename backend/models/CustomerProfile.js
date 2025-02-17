@@ -78,7 +78,18 @@ const customerProfileSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-}, { timestamps: true });
+}, { 
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+customerProfileSchema.virtual("customerFeedback", {
+  ref: "CustomerFeedback",
+  localField: "_id",
+  foreignField: "customerProfile",
+  justOne: true
+});
 
 const CustomerProfile = mongoose.model("CustomerProfile", customerProfileSchema);
 module.exports = CustomerProfile;

@@ -255,93 +255,143 @@ const DetailsModal = ({ feedback, onClose }) => {
   if (!feedback) return null;
 
   // Helper function to render checkboxes
-  const renderCheckbox = (isChecked, label) => (
-    <div className="flex items-center space-x-2">
-      <div className={`w-4 h-4 border rounded ${isChecked ? 'bg-blue-500' : 'bg-white'}`} />
-      <span className="text-sm">{label}</span>
+  const renderServiceCheckbox = (isChecked, label) => (
+    <div className="flex items-center mb-2">
+      <div className="flex items-center">
+        <span className="mr-2">[{isChecked ? '✓' : ' '}]</span>
+        <span>{label}</span>
+      </div>
     </div>
   );
+
+  // Function to handle technology transfer services
+  const renderTechnoTransferServices = (technoTransfer) => {
+    if (!technoTransfer) return null;
+    
+    const sectors = {
+      agriHorticulture: "Agriculture & Horticulture",
+      aquacultureMarine: "Aquaculture & Marine",
+      furniture: "Furniture",
+      foodProcessing: "Food Processing",
+      giftsHousewaresDecors: "Gifts, Housewares & Decors",
+      healthAndPharma: "Health & Pharmaceutical",
+      ict: "ICT",
+      metalsAndEngineering: "Metals & Engineering"
+    };
+
+    return (
+      <div>
+        <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
+        <div className="flex flex-col">
+          {Object.entries(sectors).map(([key, label]) => (
+            renderServiceCheckbox(technoTransfer.sectors[key], label)
+          ))}
+          {technoTransfer.othersSpecify && (
+            renderServiceCheckbox(true, `Others: ${technoTransfer.othersSpecify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Function to handle technical consultancy services
+  const renderTechnoConsultancyServices = (technoConsultancy) => {
+    if (!technoConsultancy) return null;
+
+    const services = {
+      mpex: "MPEX",
+      cape: "CAPE",
+      cpe: "CPE",
+      energyAudit: "Energy Audit"
+    };
+
+    return (
+      <div>
+        <h3 className="font-semibold">Technical Consultancy</h3>
+        <div className="flex flex-col">
+          {Object.entries(services).map(([key, label]) => (
+            renderServiceCheckbox(technoConsultancy.services[key], label)
+          ))}
+          {technoConsultancy.othersSpecify && (
+            renderServiceCheckbox(true, `Others: ${technoConsultancy.othersSpecify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Function to handle additional services
+  const renderAdditionalServices = (staffVisit) => {
+    if (!staffVisit) return null;
+
+    const additionalServices = [
+      { key: 'projectProposalPreparation', label: 'Project Proposal Preparation' },
+      { key: 'packagingAndLabeling', label: 'Packaging and Labeling' },
+      { key: 'technologyTraining', label: 'Technology Training' },
+      { key: 'scholarship', label: 'Scholarship' },
+      { key: 'library', label: 'Library Services', isObject: true },
+      { key: 'laboratory', label: 'Laboratory Services', isObject: true }
+    ];
+
+    return (
+      <div className="mb-6 border-b pb-4">
+        <h2 className="text-lg font-semibold mb-4">Additional Services</h2>
+        <div className="flex flex-col">
+          {additionalServices.map(({ key, label, isObject }) => (
+            renderServiceCheckbox(
+              isObject ? staffVisit[key]?.enabled : staffVisit[key],
+              label
+            )
+          ))}
+          {staffVisit.others?.enabled && (
+            renderServiceCheckbox(true, `Others: ${staffVisit.others.specify}`)
+          )}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">CUSTOMER SATISFACTION FEEDBACK FORM</h2>
-            <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-              <FiX className="w-6 h-6" />
-            </button>
-          </div>
-
-          <div className="space-y-6">
-            {/* Header Information */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
-                <p className="text-sm text-gray-600">MIMAROPA REGION</p>
+        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto">
+          {/* Header */}
+          <div className="bg-gray-100 p-4 border-b">
+            <h1 className="text-2xl font-bold text-center">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
+            <div className="flex justify-between mt-4">
+              <div className="flex-1">
+                <p className="font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
+                <p>MIMAROPA REGION</p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-gray-600">TO F1</p>
-                <p className="text-sm text-gray-600">Rev 1/04-25-16</p>
+                <p>TO F1</p>
+                <p>Rev 1/04-25-16</p>
               </div>
             </div>
-
-            {/* Visit Details */}
-            <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-              <div>
-                <p className="text-sm text-gray-600">Date of visit/encounter:</p>
-                <p className="font-medium">{new Date(feedback.dateOfVisit).toLocaleDateString()}</p>
+            <div className="flex justify-between mt-4">
+              <div className="flex-1">
+                <p><strong>Date of visit/encounter:</strong> {new Date(feedback.dateOfVisit).toLocaleDateString()}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Attending Staff:</p>
-                <p className="font-medium">{feedback.attendingStaff}</p>
+              <div className="flex-1 text-right">
+                <p><strong>Attending Staff:</strong> {feedback.attendingStaff || 'N/A'}</p>
               </div>
             </div>
+          </div>
 
+          {/* Content */}
+          <div className="p-6 space-y-6">
             {/* Services Section */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">Services Inquired on/availed:</h3>
               <div className="grid grid-cols-2 gap-4">
-                {/* Technology Transfer */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Technology Transfer & Commercialization (SETUP/GIA)</h4>
-                  <div className="space-y-2">
-                    {renderCheckbox(feedback.technoTransfer?.foodProcessing, 'Food Processing')}
-                    {renderCheckbox(feedback.technoTransfer?.metalsAndEngineering, 'Metals and Engineering')}
-                    {renderCheckbox(feedback.technoTransfer?.giftsHousewareDecors, 'Gifts Houseware Decors')}
-                    {renderCheckbox(feedback.technoTransfer?.healthAndPharma, 'Health and Pharma')}
-                    {renderCheckbox(feedback.technoTransfer?.agriHoriculture, 'Agri Horiculture')}
-                    {renderCheckbox(feedback.technoTransfer?.ict, 'ICT')}
-                    {renderCheckbox(feedback.technoTransfer?.aquacultureMarine, 'Aquaculture Marine')}
-                    {renderCheckbox(feedback.technoTransfer?.furniture, 'Furniture')}
-                  </div>
+                <div>
+                  {renderTechnoTransferServices(feedback.technoTransfer)}
                 </div>
-
-                {/* Technical Consultancy */}
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-medium mb-2">Technical Consultancy</h4>
-                  <div className="space-y-2">
-                    {renderCheckbox(feedback.technoConsultancy?.mpex, 'MPEX')}
-                    {renderCheckbox(feedback.technoConsultancy?.cape, 'CAPE')}
-                    {renderCheckbox(feedback.technoConsultancy?.cpe, 'CPE')}
-                    {renderCheckbox(feedback.technoConsultancy?.energyAudit, 'Energy Audit')}
-                  </div>
+                <div>
+                  {renderTechnoConsultancyServices(feedback.technoConsultancy)}
                 </div>
               </div>
-
-              {/* Additional Services */}
-              <div className="mt-4 bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">Additional Services</h4>
-                <div className="space-y-2">
-                  {renderCheckbox(feedback.additionalServices?.projectProposal, 'Project Proposal Preparation')}
-                  {renderCheckbox(feedback.additionalServices?.packaging, 'Packaging and Labeling')}
-                  {renderCheckbox(feedback.additionalServices?.techTraining, 'Technology Training')}
-                  {renderCheckbox(feedback.additionalServices?.scholarship, 'Scholarship')}
-                  {renderCheckbox(feedback.additionalServices?.libraryServices, 'Library Services')}
-                  {renderCheckbox(feedback.additionalServices?.laboratoryServices, 'Laboratory Services')}
-                </div>
-              </div>
+              {renderAdditionalServices(feedback)}
             </section>
 
             {/* Customer Profile */}
@@ -418,30 +468,30 @@ const DetailsModal = ({ feedback, onClose }) => {
                   <thead>
                     <tr>
                       <th className="text-left text-sm text-gray-600 pb-2 w-1/3">Drivers of Satisfaction</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Neutral</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied (5)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied (4)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Neutral (3)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied (2)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied (1)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      'Speed And Timeliness',
-                      'Quality Of Service',
-                      'Relevance Of Service',
-                      'Staff Competence',
-                      'Staff Attitude',
-                      'Overall Perception'
-                    ].map((driver) => (
-                      <tr key={driver} className="border-b">
-                        <td className="py-2 text-sm">{driver}</td>
+                      { label: 'Speed And Timeliness', key: 'speedAndTimeliness' },
+                      { label: 'Quality Of Service', key: 'qualityOfService' },
+                      { label: 'Relevance Of Service', key: 'relevanceOfService' },
+                      { label: 'Staff Competence', key: 'staffCompetence' },
+                      { label: 'Staff Attitude', key: 'staffAttitude' },
+                      { label: 'Overall Perception', key: 'overallPerception' }
+                    ].map(({ label, key }) => (
+                      <tr key={key} className="border-b">
+                        <td className="py-2 text-sm">{label}</td>
                         {[5, 4, 3, 2, 1].map((rating) => (
                           <td key={rating} className="text-center">
                             <div className="flex justify-center">
                               <div 
                                 className={`w-4 h-4 border rounded 
-                                  ${feedback.customerFeedback?.satisfaction?.[driver.replace(/\s+/g, '')] === rating 
+                                  ${feedback.customerFeedback?.satisfaction?.[key] === rating 
                                     ? 'bg-blue-500' 
                                     : 'bg-white'}`
                               }
@@ -528,6 +578,13 @@ const DetailsModal = ({ feedback, onClose }) => {
               </div>
             </section>
           </div>
+
+          <button 
+            onClick={onClose} 
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          >
+            <FiX className="w-6 h-6" />
+          </button>
         </div>
       </div>
     </div>

@@ -104,4 +104,19 @@ staffVisitSchema.pre("remove", async function (next) {
   next();
 });
 
+// Add these virtuals to StaffVisit
+staffVisitSchema.virtual("customerFeedback", {
+  ref: "CustomerFeedback",
+  localField: "_id",
+  foreignField: "staffVisit",
+  justOne: true
+});
+
+staffVisitSchema.virtual("libraryUserFeedback", {
+  ref: "LibraryUserFeedback",
+  localField: "_id",
+  foreignField: "staffVisit",
+  justOne: true
+});
+
 module.exports = mongoose.model("StaffVisit", staffVisitSchema);
