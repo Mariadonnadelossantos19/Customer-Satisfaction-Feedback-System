@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FiSearch, FiFilter, FiDownload, FiCalendar, FiX } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiDownload, FiCalendar, FiX, FiUsers, FiStar } from 'react-icons/fi';
 import Navbar from "../Components/Layout/Navbar";
 
 const Admin = () => {
@@ -12,20 +12,68 @@ const Admin = () => {
   const [selectedService, setSelectedService] = useState('');
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [feedback, setFeedback] = useState({ customerFeedback: {} });
 
   useEffect(() => {
     fetchFeedbacks();
+    const fetchFeedback = async () => {
+      try {
+        const response = await fetch('/api/feedback');
+        if (!response.ok) {
+          const errorText = await response.text(); // Get the response text
+          throw new Error(`Error fetching feedback: ${response.status} - ${errorText}`);
+        }
+        const data = await response.json();
+        setFeedback(data);
+      } catch (error) {
+        console.error('Error fetching feedback:', error.message);
+      }
+    };
+
+    fetchFeedback();
   }, []);
 
   const fetchFeedbacks = async () => {
     try {
       setLoading(true);
-      // Get all staff visits with populated references
-      const response = await axios.get('http://localhost:5000/api/staff-visits/');
+      const staffVisitsResponse = await axios.get('http://localhost:5000/api/staff-visits/');
       
-      if (response.data && Array.isArray(response.data)) {
-        setFeedbacks(response.data);
-        console.log('Fetched data:', response.data);
+      if (staffVisitsResponse.data && Array.isArray(staffVisitsResponse.data)) {
+        const staffVisitsWithFeedback = await Promise.all(
+          staffVisitsResponse.data.map(async (staffVisit) => {
+            try {
+              const feedbackResponse = await axios.get(`http://localhost:5000/api/customer-feedback/`);
+              console.log('Feedback Response:', feedbackResponse.data); // Log the response
+
+              const defaultFeedback = {
+                satisfaction: {
+                  speedAndTimeliness: null,
+                  qualityOfService: null,
+                  relevanceOfService: null,
+                  staffCompetence: null,
+                  staffAttitude: null,
+                  overallPerception: null
+                },
+                recommendationScore: null,
+                suggestions: ''
+              };
+
+              return {
+                ...staffVisit,
+                customerFeedback: feedbackResponse.data || defaultFeedback
+              };
+            } catch (error) {
+              console.log(`No feedback found for staff visit ${staffVisit._id}`, error);
+              return {
+                ...staffVisit,
+                customerFeedback: defaultFeedback
+              };
+            }
+          })
+        );
+
+        setFeedbacks(staffVisitsWithFeedback);
+        console.log('Fetched and transformed data:', staffVisitsWithFeedback);
       } else {
         setError('Invalid data format received from server');
       }
@@ -36,6 +84,16 @@ const Admin = () => {
       setLoading(false);
     }
   };
+
+  // Calculate unique customers
+  const uniqueCustomers = new Set(feedbacks.map(feedback => feedback.customerProfile?.name));
+  const customerCount = uniqueCustomers.size;
+
+  // Calculate total ratings
+  const totalRatings = feedbacks.reduce((acc, feedback) => {
+    const ratings = feedback.customerFeedback?.satisfaction;
+    return acc + (ratings ? Object.values(ratings).filter(rating => rating !== null).length : 0);
+  }, 0);
 
   const handleViewDetails = (feedback) => {
     setSelectedFeedback(feedback);
@@ -106,6 +164,18 @@ const Admin = () => {
             </button>
           </div>
 
+          {/* Display Total Ratings with Icon */}
+          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-600 flex items-center rectangle">
+            <FiStar className="w-6 h-6 mr-2" /> {/* Star Icon */}
+            <span className="font-medium">Total Ratings: {totalRatings}</span>
+          </div>
+
+          {/* Display Customer Count with Icon */}
+          <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 flex items-center rectangle">
+            <FiUsers className="w-6 h-6 mr-2" /> {/* User Icon */}
+            <span className="font-medium">Total Customers: {customerCount}</span>
+          </div>
+
           {error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
               {error}
@@ -164,9 +234,6 @@ const Admin = () => {
                     Services
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Satisfaction
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -174,7 +241,7 @@ const Admin = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center">
+                    <td colSpan="5" className="px-6 py-4 text-center">
                       <div className="flex justify-center items-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                         <span className="ml-2">Loading...</span>
@@ -183,7 +250,7 @@ const Admin = () => {
                   </tr>
                 ) : feedbacks.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
+                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
                       No feedback data available
                     </td>
                   </tr>
@@ -219,12 +286,6 @@ const Admin = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {feedback.customerFeedback?.satisfaction ? 
-                          calculateAverageSatisfaction(feedback.customerFeedback.satisfaction)
-                          : 'N/A'
-                        }
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
                         <button
                           onClick={() => handleViewDetails(feedback)}
                           className="text-blue-600 hover:text-blue-800 font-medium"
@@ -254,9 +315,11 @@ const Admin = () => {
 const DetailsModal = ({ feedback, onClose }) => {
   if (!feedback) return null;
 
+  console.log('Feedback Data:', feedback); // Debugging line
+
   // Helper function to render checkboxes
-  const renderServiceCheckbox = (isChecked, label) => (
-    <div className="flex items-center mb-2">
+  const renderServiceCheckbox = (isChecked, label, index) => (
+    <div key={`service-${label}-${index}`} className="flex items-center mb-2">
       <div className="flex items-center">
         <span className="mr-2">[{isChecked ? '✓' : ' '}]</span>
         <span>{label}</span>
@@ -283,11 +346,11 @@ const DetailsModal = ({ feedback, onClose }) => {
       <div>
         <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
         <div className="flex flex-col">
-          {Object.entries(sectors).map(([key, label]) => (
-            renderServiceCheckbox(technoTransfer.sectors[key], label)
+          {Object.entries(sectors).map(([key, label], index) => (
+            renderServiceCheckbox(technoTransfer.sectors[key], label, `transfer-${index}`)
           ))}
           {technoTransfer.othersSpecify && (
-            renderServiceCheckbox(true, `Others: ${technoTransfer.othersSpecify}`)
+            renderServiceCheckbox(true, `Others: ${technoTransfer.othersSpecify}`, 'transfer-others')
           )}
         </div>
       </div>
@@ -309,13 +372,14 @@ const DetailsModal = ({ feedback, onClose }) => {
       <div>
         <h3 className="font-semibold">Technical Consultancy</h3>
         <div className="flex flex-col">
-          {Object.entries(services).map(([key, label]) => (
-            renderServiceCheckbox(technoConsultancy.services[key], label)
+          {Object.entries(services).map(([key, label], index) => (
+            renderServiceCheckbox(technoConsultancy.services[key], label, `consultancy-${index}`)
           ))}
           {technoConsultancy.othersSpecify && (
-            renderServiceCheckbox(true, `Others: ${technoConsultancy.othersSpecify}`)
+            renderServiceCheckbox(true, `Others: ${technoConsultancy.othersSpecify}`, 'consultancy-others')
           )}
         </div>
+
       </div>
     );
   };
@@ -344,10 +408,50 @@ const DetailsModal = ({ feedback, onClose }) => {
             )
           ))}
           {staffVisit.others?.enabled && (
-            renderServiceCheckbox(true, `Others: ${staffVisit.others.specify}`)
+            renderServiceCheckbox(true, `Others: ${staffVisit.others.specify}`, 'others')
           )}
         </div>
       </div>
+    );
+  };
+
+  // Satisfaction ratings section
+  const renderSatisfactionRatings = () => {
+    const satisfactionData = feedback.customerFeedback?.satisfaction || {};
+
+    const satisfactionItems = [
+      { key: 'speedAndTimeliness', label: 'Speed And Timeliness' },
+      { key: 'qualityOfService', label: 'Quality Of Service' },
+      { key: 'relevanceOfService', label: 'Relevance Of Service' },
+      { key: 'staffCompetence', label: 'Staff Competence' },
+      { key: 'staffAttitude', label: 'Staff Attitude' },
+      { key: 'overallPerception', label: 'Overall Perception' }
+    ];
+
+    return (
+      <tbody>
+        {satisfactionItems.map(({ key, label }) => {
+          const rating = satisfactionData[key];
+          return (
+            <tr key={`satisfaction-${key}`} className="border-b">
+              <td className="py-2 text-sm font-medium w-1/3">{label}</td>
+              {[1, 2, 3, 4, 5].map((value) => (
+                <td key={`${key}-${value}`} className="text-center py-2">
+                  <div className={`w-6 h-6 mx-auto rounded-full border-2 ${
+                    Number(rating) === value 
+                      ? 'bg-blue-500 border-blue-500' 
+                      : 'border-gray-300'
+                  }`}>
+                    {Number(rating) === value && (
+                      <span className="text-white text-sm">✓</span>
+                    )}
+                  </div>
+                </td>
+              ))}
+            </tr>
+          );
+        })}
+      </tbody>
     );
   };
 
@@ -392,50 +496,135 @@ const DetailsModal = ({ feedback, onClose }) => {
                 </div>
               </div>
               {renderAdditionalServices(feedback)}
+              <p className="text-sm text-gray-600">How did you know of our services? (i.e. friend referral,
+                TV, radio, newspaper, internet, fairs/forums, etc.):</p>
+                      <p className="font-medium">{feedback.referralSource || 'N/A'}</p>
             </section>
 
             {/* Customer Profile */}
             <section>
               <h3 className="text-lg font-semibold mb-2">SECTION 1: CUSTOMER'S PROFILE</h3>
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                <div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Full Name:</p>
-                    <p className="font-medium">{feedback.customerProfile?.name || 'N/A'}</p>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-x-8">
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-gray-600">Full Name:</p>
+                      <p className="font-medium">{feedback.customerProfile?.name || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Organization:</p>
+                      <p className="font-medium">{feedback.customerProfile?.organizationName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Address:</p>
+                      <p className="font-medium">{feedback.customerProfile?.address || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Contact:</p>
+                      <p className="font-medium">{feedback.customerProfile?.contact || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600">Classification:</p>
+                      <div className="space-y-1">
+                        {[
+                          'Student',
+                          'Owner of a business',
+                          'Employee of a business',
+                          'Government employee',
+                          'Professional',
+                          'Overseas Filipino Worker',
+                          'Not employed',
+                          'Others'
+                        ].map((item) => (
+                          <div key={item} className="flex items-center">
+                            <span className="mr-2">[{feedback.customerProfile?.classification === item ? '✓' : ' '}]</span>
+                            <span className="text-sm">{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Organization:</p>
-                    <p className="font-medium">{feedback.customerProfile?.organizationName || 'N/A'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Address:</p>
-                    <p className="font-medium">{feedback.customerProfile?.address || 'N/A'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Contact:</p>
-                    <p className="font-medium">{feedback.customerProfile?.contact || 'N/A'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Classification:</p>
-                    <p className="font-medium">{feedback.customerProfile?.classification || 'N/A'}</p>
-                  </div>
-                </div>
-                <div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">First Visit:</p>
-                    <p className="font-medium">{feedback.customerProfile?.isFirstVisit ? 'Yes' : 'No'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Sex:</p>
-                    <p className="font-medium">{feedback.customerProfile?.sex || 'N/A'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">PWD:</p>
-                    <p className="font-medium">{feedback.customerProfile?.isPWD ? 'Yes' : 'No'}</p>
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-sm text-gray-600">Age Group:</p>
-                    <p className="font-medium">{feedback.customerProfile?.ageGroup || 'N/A'}</p>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center">
+                      <p className="text-sm text-gray-600 mr-4">First Visit:</p>
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center">
+                          <span className="mr-1">[{feedback.customerProfile?.isFirstVisit ? '✓' : ' '}]</span>
+                          <span className="text-sm">Yes</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="mr-1">[{!feedback.customerProfile?.isFirstVisit ? '✓' : ' '}]</span>
+                          <span className="text-sm">No</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Sex:</p>
+                      <div className="flex space-x-4">
+                        <div className="flex items-center">
+                          <span className="mr-1">[{feedback.customerProfile?.sex === 'Male' ? '✓' : ' '}]</span>
+                          <span className="text-sm">Male</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="mr-1">[{feedback.customerProfile?.sex === 'Female' ? '✓' : ' '}]</span>
+                          <span className="text-sm">Female</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">PWD:</p>
+                      <div className="flex space-x-4">
+                        <div className="flex items-center">
+                          <span className="mr-1">[{feedback.customerProfile?.isPWD ? '✓' : ' '}]</span>
+                          <span className="text-sm">Yes</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="mr-1">[{!feedback.customerProfile?.isPWD ? '✓' : ' '}]</span>
+                          <span className="text-sm">No</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Age Group:</p>
+                      <div className="grid grid-cols-2 gap-y-1">
+                        {[
+                          '15 & below',
+                          '16-20',
+                          '21-30',
+                          '31-40',
+                          '41-50',
+                          '51-59',
+                          '60 & above'
+                        ].map((age) => (
+                          <div key={age} className="flex items-center">
+                            <span className="mr-1">[{feedback.customerProfile?.ageGroup === age ? '✓' : ' '}]</span>
+                            <span className="text-sm">{age}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm text-gray-600 mb-1">Level of Education:</p>
+                      <div className="space-y-1">
+                        {[
+                          'Elementary',
+                          'High School',
+                          'College',
+                          'Masters/PhD',
+                          'Others'
+                        ].map((level) => (
+                          <div key={level} className="flex items-center">
+                            <span className="mr-1">[{feedback.customerProfile?.educationLevel === level ? '✓' : ' '}]</span>
+                            <span className="text-sm">{level}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -445,17 +634,16 @@ const DetailsModal = ({ feedback, onClose }) => {
             <section>
               <h3 className="text-lg font-semibold mb-2">Satisfaction Ratings</h3>
               <div className="bg-gray-50 p-4 rounded-lg">
-                {feedback.customerFeedback?.satisfaction && 
-                  Object.entries(feedback.customerFeedback.satisfaction).map(([key, value]) => (
-                    <div key={key} className="flex justify-between py-2 border-b">
-                      <span className="text-sm">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                      <span className="font-medium">{value}/5</span>
-                    </div>
-                  ))
-                }
+                {feedback.customerFeedback?.satisfaction && renderSatisfactionRatings()}
                 <div className="mt-4">
                   <p className="text-sm text-gray-600">Recommendation Score:</p>
                   <p className="font-medium">{feedback.customerFeedback?.recommendationScore || 'N/A'}/10</p>
+                </div>
+                <div className="mt-4">
+                  <p className="text-sm text-gray-600">Suggestions:</p>
+                  <p className="text-sm bg-white p-2 rounded border">
+                    {feedback.customerFeedback?.suggestions || 'No suggestions provided'}
+                  </p>
                 </div>
               </div>
             </section>
@@ -468,60 +656,33 @@ const DetailsModal = ({ feedback, onClose }) => {
                   <thead>
                     <tr>
                       <th className="text-left text-sm text-gray-600 pb-2 w-1/3">Drivers of Satisfaction</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied (5)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied (4)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied (1)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied (2)</th>
                       <th className="text-center text-sm text-gray-600 pb-2">Neutral (3)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied (2)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied (1)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied (4)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied (5)</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {[
-                      { label: 'Speed And Timeliness', key: 'speedAndTimeliness' },
-                      { label: 'Quality Of Service', key: 'qualityOfService' },
-                      { label: 'Relevance Of Service', key: 'relevanceOfService' },
-                      { label: 'Staff Competence', key: 'staffCompetence' },
-                      { label: 'Staff Attitude', key: 'staffAttitude' },
-                      { label: 'Overall Perception', key: 'overallPerception' }
-                    ].map(({ label, key }) => (
-                      <tr key={key} className="border-b">
-                        <td className="py-2 text-sm">{label}</td>
-                        {[5, 4, 3, 2, 1].map((rating) => (
-                          <td key={rating} className="text-center">
-                            <div className="flex justify-center">
-                              <div 
-                                className={`w-4 h-4 border rounded 
-                                  ${feedback.customerFeedback?.satisfaction?.[key] === rating 
-                                    ? 'bg-blue-500' 
-                                    : 'bg-white'}`
-                              }
-                              />
-                            </div>
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
+                  {renderSatisfactionRatings()}
                 </table>
 
                 {/* Recommendation Score */}
-                <div className="mb-4">
-                  <p className="text-sm text-gray-600 mb-2">How likely is it that you would recommend/endorse DOST's services to others?</p>
-                  <div className="flex space-x-2 items-center">
+                <div className="mb-6">
+                  <p className="text-sm font-medium mb-2">How likely is it that you would recommend/endorse DOST's services to others?</p>
+                  <div className="flex space-x-2 items-center mb-2">
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => (
                       <div 
                         key={score}
-                        className={`w-8 h-8 flex items-center justify-center border rounded
+                        className={`w-8 h-8 flex items-center justify-center border rounded-lg
                           ${feedback.customerFeedback?.recommendationScore === score 
-                            ? 'bg-blue-500 text-white' 
-                            : 'bg-white'}`
-                      }
+                            ? 'bg-blue-500 text-white border-blue-500' 
+                            : 'border-gray-300'}`}
                       >
                         {score}
                       </div>
                     ))}
                   </div>
-                  <div className="flex justify-between text-sm text-gray-600 mt-1">
+                  <div className="flex justify-between text-sm text-gray-500">
                     <span>Not at all likely</span>
                     <span>Extremely likely</span>
                   </div>

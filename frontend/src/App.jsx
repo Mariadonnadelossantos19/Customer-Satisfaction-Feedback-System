@@ -10,6 +10,7 @@ import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore"
 import Introduction from "./pages/Introduction";
 import Admin from "./pages/Admin";
+import Love from "./pages/love"
 
 
 
@@ -28,7 +29,9 @@ const App = () => {
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/learn-more" element={<Learnmore />} />
         <Route path="/Admin" element={<Admin />} />
-
+        <Route path="/love" element={<Love/>} />
+    
+        
         <Route path="/introduction" element={<Introduction />} />
         
 
