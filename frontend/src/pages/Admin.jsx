@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FiSearch, FiFilter, FiDownload, FiCalendar, FiX, FiUsers, FiStar } from 'react-icons/fi';
+import { 
+  FiSearch, FiFilter, FiDownload, FiCalendar, FiX, FiUsers, 
+  FiBarChart2, FiChevronLeft, FiChevronRight, FiActivity,
+  FiCpu, FiDatabase, FiPieChart, FiMaximize2, FiPrinter, FiEye
+} from 'react-icons/fi';
 import Navbar from "../Components/Layout/Navbar";
+import Sidebar from '../Components/Layout/Sidebar';
 
 const Admin = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -13,6 +18,8 @@ const Admin = () => {
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [feedback, setFeedback] = useState({ customerFeedback: {} });
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = feedbacks.length; // Set to the total number of feedbacks
 
   useEffect(() => {
     fetchFeedbacks();
@@ -27,13 +34,12 @@ const Admin = () => {
         const staffVisitsWithFeedback = await Promise.all(
           staffVisitsResponse.data.map(async (staffVisit) => {
             try {
-              // Fetch feedback for the specific staff visit and customer profile
               const feedbackResponse = await axios.get(`http://localhost:5000/api/customer-feedback/`, {
                 params: {
-                  staffVisitId: staffVisit._id, // Assuming the API can filter by staff visit ID
-                  customerProfileId: staffVisit.customerProfileId // Assuming the API can filter by customer profile ID
+                  // Adjust parameters if needed
                 }
               });
+              console.log('Feedback Response:', feedbackResponse.data); // Log the response
 
               // Check if feedback exists and set it, otherwise set default feedback
               const customerFeedback = feedbackResponse.data.length > 0 ? feedbackResponse.data[0] : {
@@ -75,7 +81,7 @@ const Admin = () => {
         );
 
         setFeedbacks(staffVisitsWithFeedback);
-        console.log('Fetched and transformed data:', staffVisitsWithFeedback);
+        console.log('Fetched Feedbacks:', staffVisitsWithFeedback); // Log the fetched feedbacks
       } else {
         setError('Invalid data format received from server');
       }
@@ -87,15 +93,25 @@ const Admin = () => {
     }
   };
 
-  // Calculate unique customers
+  // Calculate metrics
   const uniqueCustomers = new Set(feedbacks.map(feedback => feedback.customerProfile?.name));
   const customerCount = uniqueCustomers.size;
 
-  // Calculate total ratings
-  const totalRatings = feedbacks.reduce((acc, feedback) => {
+  const totalSatisfaction = feedbacks.reduce((acc, feedback) => {
+    const ratings = feedback.customerFeedback?.satisfaction;
+    return acc + (ratings ? Object.values(ratings).reduce((sum, rating) => sum + (rating || 0), 0) : 0);
+  }, 0);
+  
+  const totalRatingsCount = feedbacks.reduce((acc, feedback) => {
     const ratings = feedback.customerFeedback?.satisfaction;
     return acc + (ratings ? Object.values(ratings).filter(rating => rating !== null).length : 0);
   }, 0);
+  
+  const averageSatisfaction = totalRatingsCount > 0 ? (totalSatisfaction / totalRatingsCount).toFixed(2) : 'N/A';
+
+  const recommendationScoreAvg = feedbacks.reduce((acc, feedback) => {
+    return acc + (feedback.customerFeedback?.recommendationScore || 0);
+  }, 0) / (feedbacks.length || 1);
 
   const handleViewDetails = (feedback) => {
     setSelectedFeedback(feedback);
@@ -109,28 +125,22 @@ const Admin = () => {
     return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2);
   };
 
-  const filteredFeedbacks = feedbacks.filter(feedback => {
-    const matchesSearch = 
-      feedback.customerProfile?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      feedback.customerProfile?.organizationName?.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDate = !dateFilter || 
-      new Date(feedback.dateOfVisit).toLocaleDateString().includes(dateFilter);
-    
-    const matchesService = !selectedService || 
-      (feedback[selectedService]?.enabled || feedback[selectedService]);
+  // Filter feedbacks based on search term
+  const filteredFeedbacks = feedbacks; // Temporarily show all feedbacks
 
-    return matchesSearch && matchesDate && matchesService;
-  });
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(filteredFeedbacks.length / itemsPerPage);
+
+  // Get current feedbacks for the page
+  const currentFeedbacks = filteredFeedbacks; // Show all feedbacks
 
   const downloadCSV = () => {
-    const headers = ['Date', 'Name', 'Organization', 'Services', 'Satisfaction Score'];
-    const csvData = filteredFeedbacks.map(feedback => [
+    const headers = ['Date', 'Name', 'Organization', 'Satisfaction Score'];
+    const csvData = currentFeedbacks.map(feedback => [
       new Date(feedback.dateOfVisit).toLocaleDateString(),
       feedback.customerProfile?.name || 'N/A',
       feedback.customerProfile?.organizationName || 'N/A',
-      getServicesString(feedback),
-      calculateAverageSatisfaction(feedback.customerFeedback?.satisfaction)
+      feedback.customerFeedback?.satisfaction?.overallPerception || 'N/A'
     ]);
 
     const csvContent = [headers, ...csvData].map(row => row.join(',')).join('\n');
@@ -150,156 +160,321 @@ const Admin = () => {
     return services.join(', ');
   };
 
+  const handleRatingChange = (customerId, ratingType, newRating) => {
+    // Update the specific customer's rating based on their ID
+    // This should update the state in a way that only affects the targeted customer
+  };  
+
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+
+    // Static content for testing
+    const content = `
+      <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+          <div style="flex: 1; text-align: center;">
+            <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
+            <h2 style="font-size: 20px; margin-bottom: 5px;">DEPARTMENT OF SCIENCE AND TECHNOLOGY</h2>
+            <h3 style="font-size: 18px; margin-bottom: 5px;">MIMAROPA REGION</h3>
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p style="margin-bottom: 5px;">TO F1</p>
+            <p style="margin-bottom: 5px;">Rev 1/04-25-16</p>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+          <div style="flex: 1; text-align: center;">
+            <p style="margin-bottom: 5px;">Date of visit/encounter:</p>
+            <p style="font-weight: bold; margin-bottom: 20px;">2/20/2025</p>
+          </div>
+          <div style="flex: 1; text-align: center;">
+            <p style="margin-bottom: 5px;">Attending Staff:</p>
+            <p style="font-weight: bold; margin-bottom: 20px;">Sheila</p>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Write content to the print window
+    printWindow.document.write(content);
+    printWindow.document.close(); // Close the document to render the content
+
+    // Delay the print action to ensure content is rendered
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 100); // Adjust the delay as needed
+  };
+
+  // New summary calculations
+  const totalFeedbacks = feedbacks.length;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">Customer Feedback Dashboard</h1>
-            <button
-              onClick={downloadCSV}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              <FiDownload className="w-4 h-4" />
-              Export CSV
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+      <Sidebar />
+      <div className="flex-1 flex flex-col ml-0 md:ml-64">
+       
+        
+        {/* Main Content */}
+        <div className="flex-1 p-4 md:p-6">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-2xl md:text-3xl font-mono tracking-tight text-gray-800 mb-2">
+              Customer Feedback <span className="text-cyan-500">Analytics</span>
+            </h1>
+            <p className="text-gray-500 font-light">
+              Analyze and visualize customer satisfaction data across departments
+            </p>
           </div>
-
-          {/* Display Total Ratings with Icon */}
-          <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 text-yellow-600 flex items-center rectangle">
-            <FiStar className="w-6 h-6 mr-2" /> {/* Star Icon */}
-            <span className="font-medium">Total Ratings: {totalRatings}</span>
+          
+          {/* Metrics Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-cyan-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Average Satisfaction</p>
+                  <p className="text-2xl font-bold text-gray-800">{averageSatisfaction}<span className="text-sm font-normal text-gray-500">/5</span></p>
+                </div>
+                <div className="bg-cyan-50 p-3 rounded-full">
+                  <FiActivity className="h-6 w-6 text-cyan-600" />
+                </div>
+              </div>
+              <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-1 bg-cyan-500" 
+                  style={{ width: `${Math.min((parseFloat(averageSatisfaction) / 5) * 100, 100)}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-indigo-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Total Customers</p>
+                  <p className="text-2xl font-bold text-gray-800">{customerCount}</p>
+                </div>
+                <div className="bg-indigo-50 p-3 rounded-full">
+                  <FiUsers className="h-6 w-6 text-indigo-600" />
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                {feedbacks.length} total interactions
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-emerald-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Recommendation Score</p>
+                  <p className="text-2xl font-bold text-gray-800">{recommendationScoreAvg.toFixed(1)}<span className="text-sm font-normal text-gray-500">/10</span></p>
+                </div>
+                <div className="bg-emerald-50 p-3 rounded-full">
+                  <FiBarChart2 className="h-6 w-6 text-emerald-600" />
+                </div>
+              </div>
+              <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-1 bg-emerald-500" 
+                  style={{ width: `${Math.min((recommendationScoreAvg / 10) * 100, 100)}%` }}
+                ></div>
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-violet-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Data points</p>
+                  <p className="text-2xl font-bold text-gray-800">{totalRatingsCount}</p>
+                </div>
+                <div className="bg-violet-50 p-3 rounded-full">
+                  <FiDatabase className="h-6 w-6 text-violet-600" />
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                Across {Object.keys(feedbacks[0]?.customerFeedback?.satisfaction || {}).length || 0} metrics
+              </p>
+            </div>
           </div>
-
-          {/* Display Customer Count with Icon */}
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 text-green-600 flex items-center rectangle">
-            <FiUsers className="w-6 h-6 mr-2" /> {/* User Icon */}
-            <span className="font-medium">Total Customers: {customerCount}</span>
-          </div>
-
+          
+          {/* Alert for errors */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
-              {error}
+            <div className="mb-6 flex items-center p-4 bg-red-50 border-l-4 border-red-400 rounded-r-lg">
+              <svg className="h-5 w-5 text-red-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-red-700">{error}</span>
             </div>
           )}
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="relative">
-              <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search by name or organization..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="relative">
-              <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div className="relative">
-              <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All Services</option>
-                <option value="technoTransfer">Technology Transfer</option>
-                <option value="technoConsultancy">Technical Consultancy</option>
-                <option value="tna">TNA</option>
-              </select>
+          
+          {/* Filters */}
+          <div className="bg-white shadow-sm rounded-lg p-4 md:p-6 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiSearch className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search by name or organization..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50"
+                />
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiCalendar className="text-gray-400" />
+                </div>
+                <input
+                  type="date"
+                  value={dateFilter}
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50"
+                />
+              </div>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <FiFilter className="text-gray-400" />
+                </div>
+                <select
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
+                  className="pl-10 pr-8 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50 appearance-none"
+                >
+                  <option value="">All Services</option>
+                  <option value="technoTransfer">Technology Transfer</option>
+                  <option value="technoConsultancy">Technical Consultancy</option>
+                  <option value="tna">TNA</option>
+                </select>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M6 8l4 4 4-4" />
+                  </svg>
+                </div>
+              </div>
             </div>
           </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Organization
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Services
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {loading ? (
+          
+          {/* Data Table */}
+          <div className="bg-white shadow-sm rounded-lg overflow-hidden mb-6">
+            <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-medium text-gray-800">Feedback Records</h2>
+              <button 
+                onClick={downloadCSV} 
+                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition duration-150"
+              >
+                <FiDownload className="h-4 w-4 mr-2" />
+                Export Data
+              </button>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                   <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center">
-                      <div className="flex justify-center items-center">
-                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                        <span className="ml-2">Loading...</span>
-                      </div>
-                    </td>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Services</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satisfaction</th>
+                    <th scope="col" className="px-4 md:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
-                ) : feedbacks.length === 0 ? (
-                  <tr>
-                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                      No feedback data available
-                    </td>
-                  </tr>
-                ) : (
-                  filteredFeedbacks.map((feedback) => (
-                    <tr key={feedback._id}>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {feedback.dateOfVisit ? new Date(feedback.dateOfVisit).toLocaleDateString() : 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {feedback.customerProfile?.name || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {feedback.customerProfile?.organizationName || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="space-y-1">
-                          {feedback.tna && (
-                            <span className="inline-block px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                              TNA
-                            </span>
-                          )}
-                          {feedback.technoTransfer?.enabled && (
-                            <span className="inline-block px-2 py-1 text-xs bg-green-100 text-green-800 rounded">
-                              Tech Transfer
-                            </span>
-                          )}
-                          {feedback.technoConsultancy?.enabled && (
-                            <span className="inline-block px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded">
-                              Tech Consultancy
-                            </span>
-                          )}
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {loading ? (
+                    <tr>
+                      <td colSpan="7" className="px-4 md:px-6 py-12 text-center">
+                        <div className="flex flex-col items-center justify-center">
+                          <div className="spinner h-8 w-8 rounded-full border-b-2 border-t-2 border-cyan-600 animate-spin mb-4"></div>
+                          <p className="text-gray-500">Loading feedback data...</p>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <button
-                          onClick={() => handleViewDetails(feedback)}
-                          className="text-blue-600 hover:text-blue-800 font-medium"
-                        >
-                          View Details
-                        </button>
+                    </tr>
+                  ) : currentFeedbacks.length === 0 ? (
+                    <tr>
+                      <td colSpan="7" className="px-4 md:px-6 py-12 text-center border-b border-gray-200 bg-white">
+                        <div className="flex flex-col items-center justify-center">
+                          <FiDatabase className="h-10 w-10 text-gray-300 mb-4" />
+                          <p className="text-gray-500">No feedback data matching your filters</p>
+                        </div>
                       </td>
                     </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                  ) : (
+                    currentFeedbacks.map((feedback) => {
+                      const satisfactionAvg = calculateAverageSatisfaction(feedback.customerFeedback?.satisfaction);
+                      
+                      return (
+                        <tr key={feedback._id} className="hover:bg-gray-50 transition-colors duration-150">
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {feedback.dateOfVisit ? new Date(feedback.dateOfVisit).toLocaleDateString() : 'N/A'}
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-800">{feedback.customerProfile?.name || 'N/A'}</div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-700">{feedback.customerProfile?.organizationName || 'N/A'}</div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4">
+                            <div className="flex flex-wrap gap-1">
+                              {feedback.tna && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  TNA
+                                </span>
+                              )}
+                              {feedback.technoTransfer?.enabled && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 text-indigo-800">
+                                  Tech Transfer
+                                </span>
+                              )}
+                              {feedback.technoConsultancy?.enabled && (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
+                                  Consultancy
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                            {feedback.attendingStaff || 'N/A'}
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                            {satisfactionAvg !== 'N/A' ? (
+                              <div className="flex items-center">
+                                <div className="relative w-24 bg-gray-200 rounded-full h-2 mr-2">
+                                  <div 
+                                    className="absolute top-0 h-2 rounded-full" 
+                                    style={{
+                                      width: `${(parseFloat(satisfactionAvg) / 5) * 100}%`,
+                                      backgroundColor: parseFloat(satisfactionAvg) >= 4 
+                                        ? '#10b981' 
+                                        : parseFloat(satisfactionAvg) >= 3 
+                                          ? '#f59e0b' 
+                                          : '#ef4444'
+                                    }}
+                                  ></div>
+                                </div>
+                                <span className="text-sm font-medium">{satisfactionAvg}</span>
+                              </div>
+                            ) : (
+                              <span className="text-sm text-gray-500">N/A</span>
+                            )}
+                          </td>
+                          <td className="px-4 md:px-6 py-4 whitespace-nowrap text-center">
+                            <button 
+                              onClick={() => handleViewDetails(feedback)} 
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              title="View Details"
+                            >
+                              <FiEye className="w-5 h-5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -308,13 +483,15 @@ const Admin = () => {
         <DetailsModal
           feedback={selectedFeedback}
           onClose={() => setShowDetailsModal(false)}
+          onPrint={handlePrint}
         />
       )}
     </div>
   );
 };
 
-const DetailsModal = ({ feedback, onClose }) => {
+const DetailsModal = ({ feedback, onClose, onPrint }) => {
+  console.log('Feedback in Modal:', feedback); // Debugging line
   if (!feedback) return null;
 
   console.log('Feedback Data:', feedback); // Debugging line
@@ -346,7 +523,7 @@ const DetailsModal = ({ feedback, onClose }) => {
 
     return (
       <div>
-        <h3 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h3>
+        <h6 className="font-semibold">Technology Transfer & Commercialization (SETUP/GIA)</h6>
         <div className="flex flex-col">
           {Object.entries(sectors).map(([key, label], index) => (
             renderServiceCheckbox(technoTransfer.sectors[key], label, `transfer-${index}`)
@@ -372,7 +549,7 @@ const DetailsModal = ({ feedback, onClose }) => {
 
     return (
       <div>
-        <h3 className="font-semibold">Technical Consultancy</h3>
+        <h6 className="font-semibold">Technical Consultancy</h6>
         <div className="flex flex-col">
           {Object.entries(services).map(([key, label], index) => (
             renderServiceCheckbox(technoConsultancy.services[key], label, `consultancy-${index}`)
@@ -401,7 +578,7 @@ const DetailsModal = ({ feedback, onClose }) => {
 
     return (
       <div className="mb-6 border-b pb-4">
-        <h2 className="text-lg font-semibold mb-4">Additional Services</h2>
+        <h6 className="text-lg font-semibold mb-4">Additional Services</h6>
         <div className="flex flex-col">
           {additionalServices.map(({ key, label, isObject }) => (
             renderServiceCheckbox(
@@ -417,10 +594,9 @@ const DetailsModal = ({ feedback, onClose }) => {
     );
   };
 
-  // Satisfaction ratings section
+  // Render satisfaction ratings based on the feedback passed
   const renderSatisfactionRatings = () => {
     const satisfactionData = feedback.customerFeedback?.satisfaction || {};
-
     const satisfactionItems = [
       { key: 'speedAndTimeliness', label: 'Speed And Timeliness' },
       { key: 'qualityOfService', label: 'Quality Of Service' },
@@ -458,13 +634,25 @@ const DetailsModal = ({ feedback, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto no-print">
       <div className="fixed inset-0 bg-black/30" aria-hidden="true" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto">
+        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto modal-content">
           {/* Header */}
           <div className="bg-gray-100 p-4 border-b">
             <h1 className="text-2xl font-bold text-center">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
+            <button
+              onClick={onPrint}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
+            >
+              Print
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4"
+            >
+              Print All Content
+            </button>
             <div className="flex justify-between mt-4">
               <div className="flex-1">
                 <p className="font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
@@ -500,12 +688,12 @@ const DetailsModal = ({ feedback, onClose }) => {
               {renderAdditionalServices(feedback)}
               <p className="text-sm text-gray-600">How did you know of our services? (i.e. friend referral,
                 TV, radio, newspaper, internet, fairs/forums, etc.):</p>
-                      <p className="font-medium">{feedback.referralSource || 'N/A'}</p>
+              <p className="font-medium">{feedback.referralSource || 'N/A'}</p>
             </section>
 
             {/* Customer Profile */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">SECTION 1: CUSTOMER'S PROFILE</h3>
+              <h6 className="text-lg font-semibold mb-2">SECTION 1: CUSTOMER'S PROFILE</h6>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="grid grid-cols-2 gap-x-8">
                   <div className="space-y-4">
@@ -632,27 +820,9 @@ const DetailsModal = ({ feedback, onClose }) => {
               </div>
             </section>
 
-            {/* Satisfaction Ratings */}
-            <section>
-              <h3 className="text-lg font-semibold mb-2">Satisfaction Ratings</h3>
-              <div className="bg-gray-50 p-4 rounded-lg">
-                {feedback.customerFeedback?.satisfaction && renderSatisfactionRatings()}
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600">Recommendation Score:</p>
-                  <p className="font-medium">{feedback.customerFeedback?.recommendationScore || 'N/A'}/10</p>
-                </div>
-                <div className="mt-4">
-                  <p className="text-sm text-gray-600">Suggestions:</p>
-                  <p className="text-sm bg-white p-2 rounded border">
-                    {feedback.customerFeedback?.suggestions || 'No suggestions provided'}
-                  </p>
-                </div>
-              </div>
-            </section>
-
             {/* Satisfaction Ratings - Section 2 */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">SECTION 2: CUSTOMER EVALUATION/FEEDBACK</h3>
+              <h6 className="text-lg font-semibold mb-2">SECTION 2: CUSTOMER EVALUATION/FEEDBACK</h6>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <table className="w-full mb-6">
                   <thead>
@@ -702,7 +872,7 @@ const DetailsModal = ({ feedback, onClose }) => {
 
             {/* Library Users Section - Section 3 */}
             <section>
-              <h3 className="text-lg font-semibold mb-2">SECTION 3: FOR LIBRARY USERS ONLY</h3>
+              <h6 className="text-lg font-semibold mb-2">SECTION 3: FOR LIBRARY USERS ONLY</h6>
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">Queries Answered:</p>

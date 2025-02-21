@@ -17,7 +17,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-white shadow-md w-full fixed top-0 left-0 right-0 z-50">
+    <div className="bg-white shadow-md fixed top-0 left-0 w-full z-40">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center max-w-7xl mx-auto">
           {/* Logo/Brand */}
@@ -33,7 +33,7 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <div className="hidden sm:flex sm:space-x-8">
             <Link
-              to="/"
+              to="/learn-more"
               className="border border-[#0083ff] text-[#0083ff] hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors"
               aria-label="Admin Login"
             >
@@ -106,7 +106,7 @@ const Navbar = () => {
           </Link>
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
 

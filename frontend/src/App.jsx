@@ -10,7 +10,7 @@ import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore"
 import Introduction from "./pages/Introduction";
 import Admin from "./pages/Admin";
-import Love from "./pages/love"
+import Love from "./pages/love";
 
 
 
