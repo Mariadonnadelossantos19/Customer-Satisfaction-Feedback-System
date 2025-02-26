@@ -9,6 +9,7 @@ import {
   FiLogOut,
   FiMenu
 } from 'react-icons/fi';
+import FeedbackOverview from './FeedbackOverview';
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false); // State to manage sidebar visibility
@@ -46,8 +47,8 @@ const Sidebar = () => {
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-mono tracking-wider flex items-center">
             <span className="text-cyan-400 mr-2">◉</span>
-            <span>FEEDBACK</span>
-            <span className="text-cyan-400 ml-1">OS</span>
+            <span>PSTO</span>
+            <span className="text-cyan-400 ml-1">Marinduque</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1 font-mono">v2.4.1 | Analytics Engine</p>
         </div>

@@ -6,7 +6,7 @@ import { Tooltip } from 'react-tooltip';
 import Navbar from "../Components/Layout/Navbar";
 import dostbackground from "../assets/dostbg.jpg"
 import staffGif from "../assets/feedback.gif";
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Database, Atom, Code, Microscope, Server, Cpu, BrainCircuit } from 'lucide-react';
 import Confetti from "react-confetti";
 
 const Modal = ({ isOpen, onClose, children }) => {
@@ -23,6 +23,54 @@ const Modal = ({ isOpen, onClose, children }) => {
     </div>
   );
 };
+
+const DataPoints = () => {
+  const points = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 3 + 1,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 20 + 10,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {points.map((point) => (
+        <div
+          key={point.id}
+          className="absolute rounded-full bg-blue-400"
+          style={{
+            width: `${point.size}px`,
+            height: `${point.size}px`,
+            left: `${point.x}%`,
+            top: `${point.y}%`,
+            opacity: 0.5,
+            animation: `float ${point.duration}s infinite alternate ease-in-out`,
+          }}
+        />
+      ))}
+      <style jsx>{`
+        @keyframes float {
+          0% { transform: translate(0, 0); }
+          100% { transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px); }
+        }
+      `}</style>
+    </div>
+  );
+};
+
+const CircuitLines = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <svg width="100%" height="100%" className="opacity-10">
+      <pattern id="circuit-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+        <path d="M20 5 L80 5 L80 20 L95 20 L95 80 L80 80 L80 95 L20 95 L20 80 L5 80 L5 20 L20 20 Z" 
+              fill="none" stroke="currentColor" strokeWidth="1" className="text-blue-500" />
+        <circle cx="50" cy="50" r="3" className="fill-cyan-500" />
+      </pattern>
+      <rect x="0" y="0" width="100%" height="100%" fill="url(#circuit-pattern)" />
+    </svg>
+  </div>
+);
 
 const StaffInput = () => {
   const navigate = useNavigate();
@@ -167,71 +215,116 @@ const StaffInput = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-950 via-blue-900 to-cyan-900 py-12 px-4 relative">
+      {/* Animated Data Points Background */}
+      <DataPoints />
+      
+      {/* Circuit Pattern Background */}
+      <div className="absolute inset-0 bg-indigo-950/80 mix-blend-overlay pointer-events-none" />
+      
       {showConfetti && <Confetti width={window.innerWidth} height={window.innerHeight} numberOfPieces={200} />}
       <Navbar />
-      <div className="flex justify-center items-start mt-8">
-        <div className="max-w-4xl w-full">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            {/* Header with GIF */}
-            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-8 py-8">
-              <div className="flex items-center justify-between">
+      <div className="flex justify-center items-start mt-8 relative z-10">
+        <div className="max-w-5xl w-full">
+          <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-xl overflow-hidden border border-blue-200/30 relative">
+            <CircuitLines />
+            
+            {/* Header with Sci-Tech Design */}
+            <div className="bg-gradient-to-r from-blue-700 via-indigo-600 to-purple-700 px-8 py-8 relative overflow-hidden">
+              {/* Animated Tech Pattern Overlay */}
+              <div className="absolute inset-0 opacity-20">
+                <svg width="100%" height="100%">
+                  <pattern id="tech-grid" patternUnits="userSpaceOnUse" width="30" height="30" patternTransform="rotate(45)">
+                    <rect width="2" height="2" fill="white" />
+                  </pattern>
+                  <rect width="100%" height="100%" fill="url(#tech-grid)" />
+                </svg>
+              </div>
+              
+              {/* Header Content */}
+              <div className="flex items-center justify-between relative z-10">
                 <div>
-                  <h1 className="text-3xl font-bold text-white">Staff Visit Information</h1>
-                  <p className="text-blue-100 mt-2">Please provide details about the staff visit and services offered</p>
+                  <h1 className="text-3xl font-bold text-white">
+                    <span className="font-mono">DOST</span> Visit Data Collection
+                  </h1>
+                  <div className="h-0.5 w-24 bg-gradient-to-r from-blue-400 to-cyan-400 my-2"></div>
+                  <p className="text-blue-100 mt-2 flex items-center gap-2">
+                    <Database className="w-4 h-4" /> 
+                    <span>Collecting service utilization metrics for enhanced DOST performance analysis</span>
+                  </p>
                 </div>
-                {/* GIF Container */}
-                <div className="hidden md:block">
-                  <img 
-                    src={staffGif} 
-                    alt="Staff Service Animation" 
-                    className="w-32 h-32 object-cover rounded-full border-4 border-white/20"
-                  />
+                {/* GIF Container with Tech Frame */}
+                <div className="hidden md:block relative">
+                  <div className="absolute inset-0 rounded-full border-2 border-blue-400/60 animate-pulse"></div>
+                  <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-md flex items-center justify-center p-1">
+                    <img 
+                      src={staffGif} 
+                      alt="Staff Service Animation" 
+                      className="w-full h-full object-cover rounded-full"
+                    />
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-cyan-500 rounded-full px-2 py-0.5 text-xs font-mono text-white animate-pulse">
+                    LIVE
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Rest of your component remains the same */}
-            <div className="w-full bg-gray-200 h-1">
+            {/* Progress Bar with Glowing Effect */}
+            <div className="w-full bg-gray-200 h-1.5 relative overflow-hidden">
               <div 
-                className="bg-blue-600 h-1 transition-all duration-300"
+                className="h-full transition-all duration-500 relative z-10 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500"
+                style={{ width: `${((currentStep - 1) * 100) / 3}%` }}
+              />
+              <div 
+                className="absolute top-0 left-0 h-full transition-all duration-500 blur-md opacity-70 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500"
                 style={{ width: `${((currentStep - 1) * 100) / 3}%` }}
               />
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8">
+            <form onSubmit={handleSubmit} className="p-8 relative z-10">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Date of Visit <span className="text-red-500">*</span>
+                  <label className="block text-sm text-gray-600 mb-1.5 flex items-center gap-2">
+                    <FiCalendar className="text-indigo-500" />
+                    <span>Date of Visit</span>
+                    <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="date"
-                    name="dateOfVisit"
-                    value={formData.dateOfVisit}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 
-                      focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
-                      placeholder-gray-400"
-                  />
+                  <div className="relative">
+                    <input
+                      type="date"
+                      name="dateOfVisit"
+                      value={formData.dateOfVisit}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 rounded-lg border border-indigo-100 
+                      focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 
+                      placeholder-gray-400 bg-white/80 backdrop-blur-sm"
+                    />
+                    <div className="absolute inset-0 border border-indigo-200 rounded-lg pointer-events-none opacity-0 hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm text-gray-600 mb-1.5">
-                    Attending Staff <span className="text-red-500">*</span>
+                  <label className="block text-sm text-gray-600 mb-1.5 flex items-center gap-2">
+                    <FiUser className="text-indigo-500" />
+                    <span>Attending Staff</span>
+                    <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="text"
-                    name="attendingStaff"
-                    value={formData.attendingStaff}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-2 rounded-lg border border-gray-200 
-                      focus:border-blue-500 focus:ring-1 focus:ring-blue-500 
-                      placeholder-gray-400"
-                    placeholder="Enter staff name"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="attendingStaff"
+                      value={formData.attendingStaff}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2 rounded-lg border border-indigo-100 
+                        focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 
+                        placeholder-gray-400 bg-white/80 backdrop-blur-sm"
+                      placeholder="Enter staff name"
+                    />
+                    <div className="absolute inset-0 border border-indigo-200 rounded-lg pointer-events-none opacity-0 hover:opacity-100 transition-opacity" />
+                  </div>
                 </div>
               </div>
 

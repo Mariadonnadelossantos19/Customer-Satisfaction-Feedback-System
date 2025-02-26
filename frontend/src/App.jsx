@@ -9,7 +9,7 @@ import Navbar from "./Components/Layout/Navbar"
 import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore"
 import Introduction from "./pages/Introduction";
-import Admin from "./pages/Admin";
+import Admin from "./Components/Admin/Admin";
 import Love from "./pages/love";
 
 

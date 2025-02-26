@@ -5,8 +5,7 @@ import {
   FiBarChart2, FiChevronLeft, FiChevronRight, FiActivity,
   FiCpu, FiDatabase, FiPieChart, FiMaximize2, FiPrinter, FiEye
 } from 'react-icons/fi';
-import Navbar from "../Components/Layout/Navbar";
-import Sidebar from '../Components/Layout/Sidebar';
+import Sidebar from './Sidebar';
 
 const Admin = () => {
   const [feedbacks, setFeedbacks] = useState([]);
@@ -126,13 +125,17 @@ const Admin = () => {
   };
 
   // Filter feedbacks based on search term
-  const filteredFeedbacks = feedbacks; // Temporarily show all feedbacks
+  const filteredFeedbacks = feedbacks.filter(feedback => {
+    const name = feedback.customerProfile?.name?.toLowerCase() || '';
+    const organization = feedback.customerProfile?.organizationName?.toLowerCase() || '';
+    return name.includes(searchTerm.toLowerCase()) || organization.includes(searchTerm.toLowerCase());
+  });
 
   // Calculate the total number of pages
   const totalPages = Math.ceil(filteredFeedbacks.length / itemsPerPage);
 
   // Get current feedbacks for the page
-  const currentFeedbacks = filteredFeedbacks; // Show all feedbacks
+  const currentFeedbacks = filteredFeedbacks; // Show filtered feedbacks
 
   const downloadCSV = () => {
     const headers = ['Date', 'Name', 'Organization', 'Satisfaction Score'];
@@ -168,30 +171,32 @@ const Admin = () => {
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');
 
-    // Static content for testing
+    // Get the content of the modal
+    const modalContent = document.querySelector('.modal-content')?.innerHTML || '';
+    const feedbackData = selectedFeedback; // Use the selected feedback data
+
+    // Construct the content for printing
     const content = `
       <div style="font-family: Arial, sans-serif; color: #333; padding: 20px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-          <div style="flex: 1; text-align: center;">
-            <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
-            <h2 style="font-size: 20px; margin-bottom: 5px;">DEPARTMENT OF SCIENCE AND TECHNOLOGY</h2>
-            <h3 style="font-size: 18px; margin-bottom: 5px;">MIMAROPA REGION</h3>
-          </div>
-          <div style="flex: 1; text-align: center;">
-            <p style="margin-bottom: 5px;">TO F1</p>
-            <p style="margin-bottom: 5px;">Rev 1/04-25-16</p>
-          </div>
-        </div>
-        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-          <div style="flex: 1; text-align: center;">
-            <p style="margin-bottom: 5px;">Date of visit/encounter:</p>
-            <p style="font-weight: bold; margin-bottom: 20px;">2/20/2025</p>
-          </div>
-          <div style="flex: 1; text-align: center;">
-            <p style="margin-bottom: 5px;">Attending Staff:</p>
-            <p style="font-weight: bold; margin-bottom: 20px;">Sheila</p>
-          </div>
-        </div>
+        <h1 style="font-size: 28px; font-weight: bold; margin-bottom: 5px;">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
+        <h2 style="font-size: 20px; margin-bottom: 5px;">DEPARTMENT OF SCIENCE AND TECHNOLOGY</h2>
+        <h3 style="font-size: 18px; margin-bottom: 5px;">MIMAROPA REGION</h3>
+        <p style="margin-bottom: 5px;">TO F1</p>
+        <p style="margin-bottom: 5px;">Rev 1/04-25-16</p>
+        <p style="margin-bottom: 5px;">Date of visit/encounter: ${new Date(feedbackData.dateOfVisit).toLocaleDateString()}</p>
+        <p style="margin-bottom: 20px;">Attending Staff: ${feedbackData.attendingStaff || 'N/A'}</p>
+
+        <!-- Customer Profile Section -->
+        <h4 style="margin-top: 20px;">SECTION 1: CUSTOMER'S PROFILE</h4>
+        <p><strong>Full Name:</strong> ${feedbackData.customerProfile?.name || 'N/A'}</p>
+        <p><strong>Organization:</strong> ${feedbackData.customerProfile?.organization || 'N/A'}</p>
+        <p><strong>Address:</strong> ${feedbackData.customerProfile?.address || 'N/A'}</p>
+        <p><strong>Contact:</strong> ${feedbackData.customerProfile?.contact || 'N/A'}</p>
+        <p><strong>Classification:</strong> ${feedbackData.customerProfile?.classification || 'N/A'}</p>
+        <p><strong>First Visit:</strong> ${feedbackData.customerProfile?.isFirstVisit ? 'Yes' : 'No'}</p>
+        <p><strong>Sex:</strong> ${feedbackData.customerProfile?.sex || 'N/A'}</p>
+
+        ${modalContent} <!-- Include the entire modal content here -->
       </div>
     `;
 
@@ -213,14 +218,12 @@ const Admin = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
       <Sidebar />
       <div className="flex-1 flex flex-col ml-0 md:ml-64">
-       
-        
         {/* Main Content */}
         <div className="flex-1 p-4 md:p-6">
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-mono tracking-tight text-gray-800 mb-2">
-              Customer Feedback <span className="text-cyan-500">Analytics</span>
+              Customer Feedback <span className="text-blue-600">Analytics</span>
             </h1>
             <p className="text-gray-500 font-light">
               Analyze and visualize customer satisfaction data across departments
@@ -229,25 +232,25 @@ const Admin = () => {
           
           {/* Metrics Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-cyan-500">
+            <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Average Satisfaction</p>
                   <p className="text-2xl font-bold text-gray-800">{averageSatisfaction}<span className="text-sm font-normal text-gray-500">/5</span></p>
                 </div>
-                <div className="bg-cyan-50 p-3 rounded-full">
-                  <FiActivity className="h-6 w-6 text-cyan-600" />
+                <div className="bg-blue-50 p-3 rounded-full">
+                  <FiActivity className="h-6 w-6 text-blue-600" />
                 </div>
               </div>
               <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-1 bg-cyan-500" 
+                  className="h-1 bg-blue-500" 
                   style={{ width: `${Math.min((parseFloat(averageSatisfaction) / 5) * 100, 100)}%` }}
                 ></div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-indigo-500">
+            <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-indigo-500 transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Total Customers</p>
@@ -262,32 +265,32 @@ const Admin = () => {
               </p>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-emerald-500">
+            <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-teal-500 transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Recommendation Score</p>
                   <p className="text-2xl font-bold text-gray-800">{recommendationScoreAvg.toFixed(1)}<span className="text-sm font-normal text-gray-500">/10</span></p>
                 </div>
-                <div className="bg-emerald-50 p-3 rounded-full">
-                  <FiBarChart2 className="h-6 w-6 text-emerald-600" />
+                <div className="bg-teal-50 p-3 rounded-full">
+                  <FiBarChart2 className="h-6 w-6 text-teal-600" />
                 </div>
               </div>
               <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
                 <div 
-                  className="h-1 bg-emerald-500" 
+                  className="h-1 bg-teal-500" 
                   style={{ width: `${Math.min((recommendationScoreAvg / 10) * 100, 100)}%` }}
                 ></div>
               </div>
             </div>
             
-            <div className="bg-white rounded-lg shadow-sm p-5 border-t-4 border-violet-500">
+            <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-purple-500 transition-all duration-300 hover:shadow-md">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Data points</p>
                   <p className="text-2xl font-bold text-gray-800">{totalRatingsCount}</p>
                 </div>
-                <div className="bg-violet-50 p-3 rounded-full">
-                  <FiDatabase className="h-6 w-6 text-violet-600" />
+                <div className="bg-purple-50 p-3 rounded-full">
+                  <FiDatabase className="h-6 w-6 text-purple-600" />
                 </div>
               </div>
               <p className="mt-2 text-sm text-gray-500">
@@ -318,7 +321,7 @@ const Admin = () => {
                   placeholder="Search by name or organization..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                 />
               </div>
               <div className="relative">
@@ -329,7 +332,7 @@ const Admin = () => {
                   type="date"
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50"
+                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
                 />
               </div>
               <div className="relative">
@@ -339,7 +342,7 @@ const Admin = () => {
                 <select
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value)}
-                  className="pl-10 pr-8 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-gray-50 appearance-none"
+                  className="pl-10 pr-8 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 appearance-none"
                 >
                   <option value="">All Services</option>
                   <option value="technoTransfer">Technology Transfer</option>
@@ -361,7 +364,7 @@ const Admin = () => {
               <h2 className="text-lg font-medium text-gray-800">Feedback Records</h2>
               <button 
                 onClick={downloadCSV} 
-                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-cyan-600 rounded-lg hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 transition duration-150"
+                className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150"
               >
                 <FiDownload className="h-4 w-4 mr-2" />
                 Export Data
@@ -386,7 +389,7 @@ const Admin = () => {
                     <tr>
                       <td colSpan="7" className="px-4 md:px-6 py-12 text-center">
                         <div className="flex flex-col items-center justify-center">
-                          <div className="spinner h-8 w-8 rounded-full border-b-2 border-t-2 border-cyan-600 animate-spin mb-4"></div>
+                          <div className="spinner h-8 w-8 rounded-full border-b-2 border-t-2 border-blue-600 animate-spin mb-4"></div>
                           <p className="text-gray-500">Loading feedback data...</p>
                         </div>
                       </td>
@@ -405,7 +408,7 @@ const Admin = () => {
                       const satisfactionAvg = calculateAverageSatisfaction(feedback.customerFeedback?.satisfaction);
                       
                       return (
-                        <tr key={feedback._id} className="hover:bg-gray-50 transition-colors duration-150">
+                        <tr key={feedback._id} className="hover:bg-blue-50 transition-colors duration-150">
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                             {feedback.dateOfVisit ? new Date(feedback.dateOfVisit).toLocaleDateString() : 'N/A'}
                           </td>
@@ -462,7 +465,7 @@ const Admin = () => {
                           <td className="px-4 md:px-6 py-4 whitespace-nowrap text-center">
                             <button 
                               onClick={() => handleViewDetails(feedback)} 
-                              className="text-blue-600 hover:text-blue-800 font-medium"
+                              className="text-blue-600 hover:text-blue-800 font-medium p-2 rounded-full hover:bg-blue-50 transition-colors duration-150"
                               title="View Details"
                             >
                               <FiEye className="w-5 h-5" />
@@ -635,37 +638,39 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto no-print">
-      <div className="fixed inset-0 bg-black/30" aria-hidden="true" onClick={onClose} />
+      <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" onClick={onClose} />
       <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative bg-white rounded-2xl shadow-xl max-w-4xl w-full mx-auto modal-content">
+        <div className="relative bg-white rounded-xl shadow-xl max-w-4xl w-full mx-auto modal-content">
           {/* Header */}
-          <div className="bg-gray-100 p-4 border-b">
-            <h1 className="text-2xl font-bold text-center">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
-            <button
-              onClick={onPrint}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
-            >
-              Print
-            </button>
-            <button
-              onClick={() => window.print()}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mt-4"
-            >
-              Print All Content
-            </button>
-            <div className="flex justify-between mt-4">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b">
+            <h1 className="text-2xl font-bold text-center text-gray-800">CUSTOMER SATISFACTION FEEDBACK FORM</h1>
+            <div className="flex justify-center space-x-4 mt-4">
+              <button
+                onClick={onPrint}
+                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-150 flex items-center"
+              >
+                <FiPrinter className="mr-2" /> Print Form
+              </button>
+              <button
+                onClick={onClose}
+                className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors duration-150"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex justify-between mt-6">
               <div className="flex-1">
-                <p className="font-semibold">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
-                <p>MIMAROPA REGION</p>
+                <p className="font-semibold text-gray-700">DEPARTMENT OF SCIENCE AND TECHNOLOGY</p>
+                <p className="text-gray-600">MIMAROPA REGION</p>
               </div>
               <div className="text-right">
-                <p>TO F1</p>
-                <p>Rev 1/04-25-16</p>
+                <p className="text-gray-600">TO F1</p>
+                <p className="text-gray-600">Rev 1/04-25-16</p>
               </div>
             </div>
             <div className="flex justify-between mt-4">
               <div className="flex-1">
-                <p><strong>Date of visit/encounter:</strong> {new Date(feedback.dateOfVisit).toLocaleDateString()}</p>
+                <p><strong>Date of visit:</strong> {new Date(feedback.dateOfVisit).toLocaleDateString()}</p>
               </div>
               <div className="flex-1 text-right">
                 <p><strong>Attending Staff:</strong> {feedback.attendingStaff || 'N/A'}</p>
@@ -674,27 +679,28 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
             {/* Services Section */}
             <section>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+                <div className="bg-blue-50 p-4 rounded-lg">
                   {renderTechnoTransferServices(feedback.technoTransfer)}
                 </div>
-                <div>
+                <div className="bg-indigo-50 p-4 rounded-lg">
                   {renderTechnoConsultancyServices(feedback.technoConsultancy)}
                 </div>
               </div>
               {renderAdditionalServices(feedback)}
-              <p className="text-sm text-gray-600">How did you know of our services? (i.e. friend referral,
-                TV, radio, newspaper, internet, fairs/forums, etc.):</p>
-              <p className="font-medium">{feedback.referralSource || 'N/A'}</p>
+              <p className="text-sm text-gray-600">How did you know of our services?</p>
+              <p className="font-medium bg-gray-50 p-2 rounded">{feedback.referralSource || 'N/A'}</p>
             </section>
 
             {/* Customer Profile */}
             <section>
-              <h6 className="text-lg font-semibold mb-2">SECTION 1: CUSTOMER'S PROFILE</h6>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <h6 className="text-lg font-semibold mb-2 flex items-center">
+                <FiUsers className="mr-2 text-blue-600" /> CUSTOMER'S PROFILE
+              </h6>
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg">
                 <div className="grid grid-cols-2 gap-x-8">
                   <div className="space-y-4">
                     <div>
@@ -727,7 +733,7 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
                           'Others'
                         ].map((item) => (
                           <div key={item} className="flex items-center">
-                            <span className="mr-2">[{feedback.customerProfile?.classification === item ? '✓' : ' '}]</span>
+                            <span className="mr-1">[{feedback.customerProfile?.classification === item ? '✓' : ' '}]</span>
                             <span className="text-sm">{item}</span>
                           </div>
                         ))}
@@ -822,17 +828,19 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
 
             {/* Satisfaction Ratings - Section 2 */}
             <section>
-              <h6 className="text-lg font-semibold mb-2">SECTION 2: CUSTOMER EVALUATION/FEEDBACK</h6>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <h6 className="text-lg font-semibold mb-2 flex items-center">
+                <FiBarChart2 className="mr-2 text-blue-600" /> CUSTOMER EVALUATION/FEEDBACK
+              </h6>
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg">
                 <table className="w-full mb-6">
                   <thead>
                     <tr>
                       <th className="text-left text-sm text-gray-600 pb-2 w-1/3">Drivers of Satisfaction</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied (1)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied (2)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Satisfied (5)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Satisfied (4)</th>
                       <th className="text-center text-sm text-gray-600 pb-2">Neutral (3)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied (4)</th>
-                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied (5)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Dissatisfied (2)</th>
+                      <th className="text-center text-sm text-gray-600 pb-2">Very Dissatisfied (1)</th>
                     </tr>
                   </thead>
                   {renderSatisfactionRatings()}
@@ -841,13 +849,13 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
                 {/* Recommendation Score */}
                 <div className="mb-6">
                   <p className="text-sm font-medium mb-2">How likely is it that you would recommend/endorse DOST's services to others?</p>
-                  <div className="flex space-x-2 items-center mb-2">
+                  <div className="flex space-x-1 items-center mb-2">
                     {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => (
                       <div 
                         key={score}
                         className={`w-8 h-8 flex items-center justify-center border rounded-lg
                           ${feedback.customerFeedback?.recommendationScore === score 
-                            ? 'bg-blue-500 text-white border-blue-500' 
+                            ? 'bg-blue-600 text-white border-blue-600' 
                             : 'border-gray-300'}`}
                       >
                         {score}
@@ -863,7 +871,7 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
                 {/* Suggestions */}
                 <div>
                   <p className="text-sm text-gray-600 mb-2">Suggestions:</p>
-                  <p className="text-sm bg-white p-2 rounded border">
+                  <p className="text-sm bg-white p-3 rounded border">
                     {feedback.customerFeedback?.suggestions || 'No suggestions provided'}
                   </p>
                 </div>
@@ -872,8 +880,10 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
 
             {/* Library Users Section - Section 3 */}
             <section>
-              <h6 className="text-lg font-semibold mb-2">SECTION 3: FOR LIBRARY USERS ONLY</h6>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              <h6 className="text-lg font-semibold mb-2 flex items-center">
+                <FiDatabase className="mr-2 text-blue-600" /> FOR LIBRARY USERS ONLY
+              </h6>
+              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 rounded-lg">
                 <div className="mb-4">
                   <p className="text-sm text-gray-600 mb-2">Queries Answered:</p>
                   <p className="font-medium">{feedback.libraryFeedback?.queriesAnswered ? 'Yes' : 'No'}</p>
@@ -914,7 +924,8 @@ const DetailsModal = ({ feedback, onClose, onPrint }) => {
 
           <button 
             onClick={onClose} 
-            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 bg-white/80 rounded-full p-1"
+            aria-label="Close"
           >
             <FiX className="w-6 h-6" />
           </button>
