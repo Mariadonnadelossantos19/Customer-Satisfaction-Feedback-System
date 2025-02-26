@@ -163,12 +163,6 @@ const DetailsModal = ({ feedback, onClose }) => {
               >
                 <FiPrinter className="mr-2" /> Print Form
               </button>
-              <button
-                onClick={onClose}
-                className="bg-gray-200 text-gray-700 px-5 py-2 rounded-lg hover:bg-gray-300 transition-all duration-200 shadow hover:shadow-md"
-              >
-                Close
-              </button>
             </div>
             <div className="flex justify-between mt-6">
               <div className="flex-1">
