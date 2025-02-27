@@ -9,7 +9,7 @@ export class PrintService {
         <table style="width: 100%; border-collapse: collapse; border-bottom: 1px solid #000;">
           <tr>
             <td style="width: 15%; border-right: 1px solid #000; padding: 5px; vertical-align: middle; text-align: center;">
-              <img src="/logo.png" alt="DOST Logo" style="max-width: 60px; max-height: 60px;">
+              <img src="../../assets/dostbg.jpg" alt="DOST Logo" style="max-width: 60px; max-height: 60px;">
             </td>
             <td style="width: 55%; text-align: center; vertical-align: middle; padding: 5px;">
               <div style="font-weight: bold; font-size: 14px;">CUSTOMER SATISFACTION FEEDBACK FORM</div>
@@ -131,7 +131,7 @@ export class PrintService {
                 </tr>
                 <tr>
                   <td style="padding: 3px; font-size: 10px; border-bottom: 1px solid #000;">
-                    School/Company/Organization Name: <u>${feedbackData.customerProfile?.organization || '_______________'}</u>
+                    School/Company/Organization Name: <u>${feedbackData.customerProfile?.organizationName || '_______________'}</u>
                   </td>
                 </tr>
                 <tr>
@@ -141,7 +141,7 @@ export class PrintService {
                 </tr>
                 <tr>
                   <td style="padding: 3px; font-size: 10px; border-bottom: 1px solid #000;">
-                    Tel or Cel No./E-mail Add.: <u>${feedbackData.customerProfile?.contact || '_______________'}</u>
+                    Tel or Cel No./E-mail Add.: <u>${feedbackData.customerProfile?.contactInfo || '_______________'}</u>
                   </td>
                 </tr>
                 <tr>
@@ -224,6 +224,7 @@ export class PrintService {
           </tr>
           <tr style="font-size: 9px; text-align: center; border-bottom: 1px solid #000;">
             <td style="width: 40%; padding: 3px 5px; text-align: left; border-right: 1px solid #000;">Drivers of satisfaction</td>
+            <td style="width: 12%; padding: 3px 5px; border-right: 1px solid #000;">6-Outstanding</td>
             <td style="width: 12%; padding: 3px 5px; border-right: 1px solid #000;">5-Very Satisfied</td>
             <td style="width: 12%; padding: 3px 5px; border-right: 1px solid #000;">4-Satisfied</td>
             <td style="width: 12%; padding: 3px 5px; border-right: 1px solid #000;">3-Neutral</td>
@@ -319,6 +320,7 @@ export class PrintService {
       return `
         <tr style="font-size: 9px; text-align: center; border-bottom: 1px dotted #000;">
           <td style="padding: 3px 5px; text-align: left; border-right: 1px solid #000;">${label}................................</td>
+          <td style="padding: 3px 5px; border-right: 1px solid #000;">[ ${Number(value) === 6 ? '✓' : ' '} ]</td>
           <td style="padding: 3px 5px; border-right: 1px solid #000;">[ ${Number(value) === 5 ? '✓' : ' '} ]</td>
           <td style="padding: 3px 5px; border-right: 1px solid #000;">[ ${Number(value) === 4 ? '✓' : ' '} ]</td>
           <td style="padding: 3px 5px; border-right: 1px solid #000;">[ ${Number(value) === 3 ? '✓' : ' '} ]</td>

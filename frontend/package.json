@@ -13,6 +13,7 @@
     "@react-pdf/renderer": "^4.2.1",
     "@tailwindcss/vite": "^4.0.6",
     "axios": "^1.7.9",
+    "canvas-confetti": "^1.9.3",
     "chart.js": "^4.4.7",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.4.1",

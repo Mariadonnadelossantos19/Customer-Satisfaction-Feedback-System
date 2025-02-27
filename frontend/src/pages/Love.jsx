@@ -8,7 +8,7 @@ function TestComponent() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/staff-visits/');
+                const response = await fetch('http://localhost:5001/api/staff-visits/');
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }

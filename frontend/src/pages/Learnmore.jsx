@@ -239,7 +239,7 @@ const LearnMore = () => {
                 <li>
                   <Link to="/staff-input" className="hover:text-blue-200 transition-colors">
                     Our Services
-                  </Link>
+                  </Link>image.png
                 </li>
                 <li>
                   <Link to="/programs" className="hover:text-blue-200 transition-colors">
@@ -260,7 +260,7 @@ const LearnMore = () => {
                 <a
                   href="https://facebook.com"
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener noreferrer" 
                   className="text-white hover:text-blue-200 transition-colors"
                 >
                   <img src="https://via.placeholder.com/24" alt="Facebook" className="w-6 h-6" />

@@ -14,32 +14,32 @@ const customerFeedbackSchema = new mongoose.Schema({
   satisfaction: {
     speedAndTimeliness: {
       type: Number,
-      enum: [1, 2, 3, 4, 5], // 1-Very Satisfied to 5-Very Dissatisfied
+      enum: [1, 2, 3, 4, 5, 6], // 1-Very Satisfied to 5-Very Dissatisfied
       required: true,
     },
     qualityOfService: {
       type: Number, 
-      enum: [1, 2, 3, 4, 5],
+      enum: [1, 2, 3, 4, 5,6],
       required: true,
     },
     relevanceOfService: {
       type: Number,
-      enum: [1, 2, 3, 4, 5],
+      enum: [1, 2, 3, 4, 5,6],
       required: true,
     },
     staffCompetence: {
       type: Number,
-      enum: [1, 2, 3, 4, 5],
+      enum: [1, 2, 3, 4, 5,6],
       required: true,
     },
     staffAttitude: {
       type: Number,
-      enum: [1, 2, 3, 4, 5],
+      enum: [1, 2, 3, 4, 5,6],
       required: true,
     },
     overallPerception: {
       type: Number,
-      enum: [1, 2, 3, 4, 5],
+      enum: [1, 2, 3, 4, 5,6],
       required: true,
     },
   },

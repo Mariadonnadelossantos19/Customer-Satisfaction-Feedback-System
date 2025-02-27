@@ -1,8 +1,9 @@
-// THIS IS FOR HE LIBRARY SECTION USER ONLY
 import React, { useState } from "react";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { FiCheckCircle, FiEdit2, FiBook, FiCoffee, FiTool, FiPackage, FiGift, FiHeart, FiMonitor, FiTruck } from "react-icons/fi";
+// Import the modal component
+import CongratulationsModal from "./CongratulationsModal";
 
 const LibraryFeedback = () => {
   const [searchParams] = useSearchParams();
@@ -11,6 +12,7 @@ const LibraryFeedback = () => {
   const navigate = useNavigate();
 
   const [showSummary, setShowSummary] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     customerFeedback: customerFeedbackId || "",
     staffVisit: staffVisitId || "",
@@ -82,10 +84,15 @@ const LibraryFeedback = () => {
 
     try {
       await axios.post("http://localhost:5000/api/library-feedback", formData);
-      navigate(`/review-summary?staffVisitId=${staffVisitId}&customerFeedbackId=${customerFeedbackId}`);
+      setSuccess(true);
+      setShowModal(true);
     } catch (err) {
       setError(err.response?.data?.message || "An error occurred");
     }
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
   };
 
   const renderForm = () => (
@@ -358,6 +365,13 @@ const LibraryFeedback = () => {
         <form onSubmit={handleSubmit}>
           {showSummary ? renderSummary() : renderForm()}
         </form>
+
+        {/* Use the separate CongratulationsModal component */}
+        <CongratulationsModal 
+          isOpen={showModal} 
+          onClose={handleCloseModal} 
+          redirectPath="/"
+        />
       </div>
     </div>
   );

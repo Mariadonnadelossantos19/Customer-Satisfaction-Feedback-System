@@ -134,7 +134,7 @@ const LandingPage = () => {
                 to="/learn-more"
                 className="px-8 py-4 border-2 border-cyan-400/40 hover:border-cyan-400/80 rounded-lg transition-all duration-300 inline-flex items-center justify-center gap-2 text-lg font-medium hover:bg-cyan-900/20 backdrop-blur-sm hover:shadow-lg hover:shadow-cyan-400/10"
               >
-                Research Methodology
+                Learn  More
                 <ChevronRight className="w-5 h-5" />
               </Link>
             </motion.div>

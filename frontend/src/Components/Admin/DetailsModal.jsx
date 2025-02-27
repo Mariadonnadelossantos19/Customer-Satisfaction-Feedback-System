@@ -3,8 +3,12 @@ import {
   FiPrinter, FiUsers, FiBarChart2, FiDatabase, FiX
 } from 'react-icons/fi';
 import { PrintService } from './PrintService';
+import { CheckCircle } from 'lucide-react';
 
-const DetailsModal = ({ feedback, onClose }) => {
+const DetailsModal = ({ isOpen, onClose, feedback }) => {
+  // Ensure we're using the specific customer's feedback data
+  const customerFeedback = feedback?.customerFeedback || {};
+  
   console.log('Feedback in Modal:', feedback); // Debugging line
   if (!feedback) return null;
 
@@ -107,40 +111,141 @@ const DetailsModal = ({ feedback, onClose }) => {
 
   // Render satisfaction ratings based on the feedback passed
   const renderSatisfactionRatings = () => {
-    const satisfactionData = feedback.customerFeedback?.satisfaction || {};
+    // Use the specific customer's satisfaction ratings
+    const satisfactionData = customerFeedback.satisfaction || {};
+    
     const satisfactionItems = [
-      { key: 'speedAndTimeliness', label: 'Speed And Timeliness' },
-      { key: 'qualityOfService', label: 'Quality Of Service' },
-      { key: 'relevanceOfService', label: 'Relevance Of Service' },
-      { key: 'staffCompetence', label: 'Staff Competence' },
-      { key: 'staffAttitude', label: 'Staff Attitude' },
-      { key: 'overallPerception', label: 'Overall Perception' }
+      { key: 'speedAndTimeliness', label: 'Speed and Timeliness of Service' },
+      { key: 'qualityOfService', label: 'Quality of Service' },
+      { key: 'relevanceOfService', label: 'Relevance of Service' },
+      { key: 'staffCompetence', label: 'Staff Knowledge and Competence' },
+      { key: 'staffAttitude', label: 'Staff Attitude and Courtesy' },
+      { key: 'overallPerception', label: 'Overall Customer Experience' }
     ];
 
+    // Fixed rating scale - now correctly maps 1 to Outstanding and 6 to Very Dissatisfied
+    const getRatingLabel = (value) => {
+      switch (value) {
+        case 6: return 'Outstanding';
+        case 5: return 'Very Satisfied';
+        case 4: return 'Satisfied';
+        case 3: return 'Neutral';
+        case 2: return 'Dissatisfied';
+        case 1: return 'Very Dissatisfied';
+        default: return 'Not Rated';
+      }
+    };
+
+    // Updated color scheme to match the correct rating values
+    const getRatingColor = (value) => {
+      switch (value) {
+        case 6: return 'bg-emerald-500';
+        case 5: return 'bg-green-500';
+        case 4: return 'bg-blue-500';
+        case 3: return 'bg-yellow-500';
+        case 2: return 'bg-orange-500';
+        case 1: return 'bg-red-500';
+        default: return 'bg-gray-200';
+      }
+    };
+
     return (
-      <tbody>
-        {satisfactionItems.map(({ key, label }) => {
-          const rating = satisfactionData[key];
-          return (
-            <tr key={`satisfaction-${key}`} className="border-b">
-              <td className="py-2 text-sm font-medium w-1/3">{label}</td>
-              {[1, 2, 3, 4, 5].map((value) => (
-                <td key={`${key}-${value}`} className="text-center py-2">
-                  <div className={`w-6 h-6 mx-auto rounded-full border-2 ${
-                    Number(rating) === value 
-                      ? 'bg-blue-500 border-blue-500' 
-                      : 'border-gray-300'
-                  }`}>
-                    {Number(rating) === value && (
-                      <span className="text-white text-sm">✓</span>
-                    )}
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gradient-to-r from-blue-50 to-indigo-50">
+              <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 rounded-l-lg">
+                Drivers of Satisfaction
+              </th>
+              {[6, 5, 4, 3, 2, 1].map((value) => (
+                <th key={value} className="px-2 py-3 text-center">
+                  <div className="text-xs font-medium text-gray-600 mb-1">
+                    {getRatingLabel(value)}
                   </div>
-                </td>
+                  <div className="text-xs text-gray-500">({value})</div>
+                </th>
               ))}
             </tr>
-          );
-        })}
-      </tbody>
+          </thead>
+          <tbody>
+            {satisfactionItems.map(({ key, label }) => {
+              // Get this specific customer's rating for each item
+              const rating = Number(satisfactionData[key]);
+              return (
+                <tr key={key} className="border-b border-gray-100 hover:bg-gray-50/50">
+                  <td className="py-4 px-4 text-sm text-gray-700">{label}</td>
+                  {[6, 5, 4, 3, 2, 1].map((value) => (
+                    <td key={`${key}-${value}`} className="px-2 text-center">
+                      <div className="flex justify-center">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all duration-200
+                          ${rating === value 
+                            ? `${getRatingColor(value)} border-transparent` 
+                            : 'border-gray-200 bg-white'}`}
+                        >
+                          {rating === value && (
+                            <CheckCircle className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+
+        {/* Recommendation Score */}
+        <div className="mt-8 bg-white p-6 rounded-xl border border-gray-200">
+          <h6 className="text-sm font-semibold text-gray-700 mb-4">
+            Likelihood to Recommend DOST's Services
+          </h6>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="flex-1 grid grid-cols-11 gap-1">
+                {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {
+                  // Use this specific customer's recommendation score
+                  const isSelected = customerFeedback.recommendationScore === score;
+                  return (
+                    <div
+                      key={score}
+                      className={`relative h-12 flex items-center justify-center rounded-md border-2 transition-all
+                        ${isSelected 
+                          ? 'border-blue-500 bg-blue-50 shadow-md' 
+                          : 'border-gray-200 bg-white'}`}
+                    >
+                      <span className={`text-sm font-medium
+                        ${isSelected ? 'text-blue-700' : 'text-gray-600'}`}
+                      >
+                        {score}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Not at all likely</span>
+              <span>Extremely likely</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Customer Comments/Suggestions */}
+        <div className="mt-6 bg-white p-6 rounded-xl border border-gray-200">
+          <h6 className="text-sm font-semibold text-gray-700 mb-3">
+            Customer Comments and Suggestions
+          </h6>
+          <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 min-h-[100px]">
+            <p className="text-sm text-gray-600 whitespace-pre-wrap">
+              {customerFeedback.suggestions || 'No comments provided'}
+            </p>
+          </div>
+        </div>
+      </div>
     );
   };
 
@@ -240,7 +345,7 @@ const DetailsModal = ({ feedback, onClose }) => {
                     </div>
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
                       <p className="text-sm text-gray-600">Contact:</p>
-                      <p className="font-medium text-gray-800">{feedback.customerProfile?.contact || 'N/A'}</p>
+                      <p className="font-medium text-gray-800">{feedback.customerProfile?.contactInfo || 'N/A'}</p>
                     </div>
                     
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
@@ -271,14 +376,8 @@ const DetailsModal = ({ feedback, onClose }) => {
                     <div className="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
                       <p className="text-sm text-gray-600 mb-2">First Visit:</p>
                       <div className="flex items-center space-x-4">
-                        <div className="flex items-center">
-                          <div className={`w-4 h-4 rounded-full mr-2 ${feedback.customerProfile?.isFirstVisit ? 'bg-blue-500' : 'border border-gray-300'}`}></div>
-                          <span className="text-sm">Yes</span>
-                        </div>
-                        <div className="flex items-center">
-                          <div className={`w-4 h-4 rounded-full mr-2 ${!feedback.customerProfile?.isFirstVisit ? 'bg-blue-500' : 'border border-gray-300'}`}></div>
-                          <span className="text-sm">No</span>
-                        </div>
+                        <div className={`w-4 h-4 rounded-full mr-2 ${feedback.customerProfile?.isFirstVisit ? 'bg-blue-500' : 'border border-gray-300'}`}></div>
+                        <span className="text-sm">Yes</span>
                       </div>
                     </div>
 
@@ -357,53 +456,7 @@ const DetailsModal = ({ feedback, onClose }) => {
               <h6 className="text-xl font-semibold mb-4 flex items-center text-gray-800 border-b pb-2">
                 <FiBarChart2 className="mr-2 text-blue-600" /> CUSTOMER EVALUATION/FEEDBACK
               </h6>
-              <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-5 rounded-lg border border-blue-100">
-                <div className="overflow-x-auto">
-                  <table className="w-full mb-6">
-                    <thead>
-                      <tr className="bg-blue-100 text-blue-800">
-                        <th className="text-left text-sm py-2 px-3 rounded-l-lg w-1/3">Drivers of Satisfaction</th>
-                        <th className="text-center text-sm py-2 px-3">Very Satisfied (5)</th>
-                        <th className="text-center text-sm py-2 px-3">Satisfied (4)</th>
-                        <th className="text-center text-sm py-2 px-3">Neutral (3)</th>
-                        <th className="text-center text-sm py-2 px-3">Dissatisfied (2)</th>
-                        <th className="text-center text-sm py-2 px-3 rounded-r-lg">Very Dissatisfied (1)</th>
-                      </tr>
-                    </thead>
-                    {renderSatisfactionRatings()}
-                  </table>
-                </div>
-
-                {/* Recommendation Score */}
-                <div className="mb-6 bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-                  <p className="text-sm font-medium mb-3">How likely is it that you would recommend/endorse DOST's services to others?</p>
-                  <div className="flex flex-wrap gap-1 justify-center mb-2">
-                    {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => (
-                      <div 
-                        key={score}
-                        className={`w-8 h-8 flex items-center justify-center border rounded-lg
-                          ${feedback.customerFeedback?.recommendationScore === score 
-                            ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
-                            : 'border-gray-300 hover:bg-gray-50'}`}
-                      >
-                        {score}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between text-sm text-gray-500 mt-2">
-                    <span>Not at all likely</span>
-                    <span>Extremely likely</span>
-                  </div>
-                </div>
-
-                {/* Suggestions */}
-                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
-                  <p className="text-sm font-medium text-gray-700 mb-2">Suggestions:</p>
-                  <div className="text-sm bg-gray-50 p-4 rounded border min-h-[80px] whitespace-pre-wrap">
-                    {feedback.customerFeedback?.suggestions || 'No suggestions provided'}
-                  </div>
-                </div>
-              </div>
+              {renderSatisfactionRatings()}
             </section>
 
             {/* Library Users Section - Section 3 */}
