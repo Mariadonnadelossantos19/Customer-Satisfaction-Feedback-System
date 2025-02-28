@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { FiCheckCircle, FiEdit2, FiBook, FiCoffee, FiTool, FiPackage, FiGift, FiHeart, FiMonitor, FiTruck } from "react-icons/fi";
+import { FiCheckCircle, FiEdit2, FiBook, FiCoffee, FiTool, FiPackage, FiGift, FiHeart, FiMonitor, FiTruck, FiBookOpen, FiX, FiCheck } from "react-icons/fi";
 // Import the modal component
 import CongratulationsModal from "./CongratulationsModal";
 
@@ -13,6 +13,7 @@ const LibraryFeedback = () => {
 
   const [showSummary, setShowSummary] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [isLibraryUser, setIsLibraryUser] = useState(null);
   const [formData, setFormData] = useState({
     customerFeedback: customerFeedbackId || "",
     staffVisit: staffVisitId || "",
@@ -93,6 +94,15 @@ const LibraryFeedback = () => {
 
   const handleCloseModal = () => {
     setShowModal(false);
+    navigate('/');
+  };
+
+  const handleSkip = () => {
+    setShowModal(true);
+  };
+
+  const handleStart = () => {
+    setIsLibraryUser(true);
   };
 
   const renderForm = () => (
@@ -351,22 +361,50 @@ const LibraryFeedback = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-6">
-          <div className="p-6">
-            <h1 className="text-2xl font-bold text-white">Library User Feedback</h1>
-            <p className="text-blue-100 mt-1">Help us improve our services</p>
+        {/* Enhanced Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-6 transform hover:scale-[1.01] transition-transform duration-300">
+          <div className="p-8 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-16 -translate-y-8">
+              <div className="w-full h-full bg-white/10 rounded-full"></div>
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Library User Feedback</h1>
+            <p className="text-blue-100 text-lg">Help us improve our services</p>
           </div>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          {showSummary ? renderSummary() : renderForm()}
-        </form>
+        {isLibraryUser === null ? (
+          // Initial choice screen
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+                Did you use our library services today?
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => setIsLibraryUser(true)}
+                  className="group p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white"
+                >
+                  Yes, I did
+                </button>
+                <button
+                  onClick={handleSkip}
+                  className="group p-6 bg-white border-2 border-gray-200 rounded-xl text-gray-700"
+                >
+                  No, skip feedback
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Existing form
+          <form onSubmit={handleSubmit}>
+            {showSummary ? renderSummary() : renderForm()}
+          </form>
+        )}
 
-        {/* Use the separate CongratulationsModal component */}
+        {/* Using the modal without isSkipping prop */}
         <CongratulationsModal 
           isOpen={showModal} 
           onClose={handleCloseModal} 

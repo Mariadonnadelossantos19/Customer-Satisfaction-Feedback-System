@@ -2,31 +2,47 @@ import React, { useState } from 'react';
 import { 
   FiHome, 
   FiClipboard, 
-  FiBell, 
+ // FiBell, 
   FiPieChart, 
-  FiDatabase,
+  //FiDatabase,
   FiSettings, 
-  FiLogOut,
+  FiLogOut, 
   FiMenu
 } from 'react-icons/fi';
 import FeedbackOverview from './FeedbackOverview';
+import Admin from './Admin';
+//import Notifications from './Notifications';
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(false); // State to manage sidebar visibility
+  const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState('dashboard');
+  const [content, setContent] = useState(<Admin />);
 
   const handleNavigation = (route) => {
     setActiveItem(route);
-    console.log(`Navigating to ${route}`);
-    // Add navigation logic here (e.g., using react-router)
+    
+    // Handle navigation based on route
+    switch (route) {
+      case 'dashboard':
+        setContent(<Admin />);
+        break;
+      case 'feedback-overview':
+        setContent(<FeedbackOverview />);
+        break;
+      {/*case 'notifications':
+        setContent(<Notifications />);*/}
+        break;
+      default:
+        setContent(<Admin />);
+    }
   };
 
   const menuItems = [
     { id: 'dashboard', icon: FiHome, label: 'Dashboard' },
     { id: 'feedback-overview', icon: FiClipboard, label: 'Feedback Overview' },
-    { id: 'notifications', icon: FiBell, label: 'Notifications', badge: 10 },
+    //{ id: 'notifications', icon: FiBell, label: 'Notifications', badge: 10 },
     { id: 'satisfaction-reports', icon: FiPieChart, label: 'Satisfaction Reports' },
-    { id: 'customer-insights', icon: FiDatabase, label: 'Customer Insights' },
+    //{ id: 'customer-insights', icon: FiDatabase, label: 'Customer Insights' },
   ];
 
   const bottomMenuItems = [
@@ -35,14 +51,9 @@ const Sidebar = () => {
   ];
 
   return (
-    <div>
-      {/* Hamburger Menu Button */}
-      <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-4 text-white">
-        <FiMenu className="w-6 h-6" />
-      </button>
-
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`bg-gray-900 text-gray-100 w-64 h-full fixed transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <div className={`bg-gray-900 text-gray-100 w-64 fixed h-full transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-mono tracking-wider flex items-center">
@@ -99,6 +110,21 @@ const Sidebar = () => {
             ))}
           </ul>
         </div>
+      </div>
+
+      {/* Mobile menu button */}
+      <div className="md:hidden fixed top-4 left-4 z-20">
+        <button 
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 rounded-md bg-gray-800 text-white hover:bg-gray-700"
+        >
+          <FiMenu className="w-6 h-6" />
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 md:ml-64">
+        {content}
       </div>
     </div>
   );

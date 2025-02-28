@@ -17,9 +17,11 @@ router.get('/all', async (req, res) => {
 
 // Get all feedback for a specific customer profile
 router.get('/', async (req, res) => {
-  const { customerProfileId } = req.query;
+  const { staffVisitId } = req.query;
   try {
-    const feedback = await CustomerFeedback.find({ customerProfile: customerProfileId })
+    const feedback = await CustomerFeedback.find(
+      staffVisitId ? { staffVisit: staffVisitId } : {}
+    )
       .populate('customerProfile')
       .sort({ createdAt: -1 });
     res.json(feedback);

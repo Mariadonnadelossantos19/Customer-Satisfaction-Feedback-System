@@ -5,7 +5,11 @@
            "@/*": ["src/*"]
          },
          "checkJs": true,
-         "composite": true
+         "composite": true,
+         "jsx": "react-jsx",
+         "module": "ESNext",
+         "types": ["react", "react-dom"],
+         "moduleResolution": "node"
        },
        "include": ["src/**/*"],
        "exclude": ["node_modules"]

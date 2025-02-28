@@ -11,7 +11,7 @@ import Learnmore from "./pages/Learnmore"
 import Introduction from "./pages/Introduction";
 import Admin from "./Components/Admin/Admin";
 import Love from "./pages/love";
-
+import Sidebar from "./Components/Admin/Sidebar";
 
 
 
@@ -30,6 +30,7 @@ const App = () => {
         <Route path="/learn-more" element={<Learnmore />} />
         <Route path="/Admin" element={<Admin />} />
         <Route path="/love" element={<Love/>} />
+        <Route path="/sidebar" element={<Sidebar />} /> 
     
         
         <Route path="/introduction" element={<Introduction />} />

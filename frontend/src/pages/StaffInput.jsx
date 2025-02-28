@@ -311,48 +311,46 @@ const StaffInput = () => {
                       <span className="text-sm text-gray-700 font-medium">Technology Transfer</span>
                     </label>
                     
-                    {formData.technoTransfer.enabled && (
-                      <div className="px-4 pb-4 pt-2 bg-gray-50">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {Object.keys(formData.technoTransfer.sectors).map((sector) => (
-                            sector !== 'others' && sector !== 'othersSpecify' && (
-                              <label key={sector} className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={formData.technoTransfer.sectors[sector]}
-                                  onChange={handleNestedChange('technoTransfer', 'sectors', sector)}
-                                  className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                                />
-                                <span className="text-sm text-gray-500">
-                                  {sector.replace(/([A-Z])/g, ' $1').trim()}
-                                </span>
-                              </label>
-                            )
-                          ))}
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={formData.technoTransfer.sectors.others}
-                              onChange={handleNestedChange('technoTransfer', 'sectors', 'others')}
-                              className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                            />
-                            <span className="text-sm text-gray-500">Others</span>
-                          </label>
-                          {formData.technoTransfer.sectors.others && (
-                            <div className="col-span-2 mt-2">
+                    <div className="px-4 pb-4 pt-2 bg-gray-50">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {Object.keys(formData.technoTransfer.sectors).map((sector) => (
+                          sector !== 'others' && sector !== 'othersSpecify' && (
+                            <label key={sector} className="flex items-center gap-2">
                               <input
-                                type="text"
-                                name="technoTransfer.othersSpecify"
-                                value={formData.technoTransfer.othersSpecify}
-                                onChange={handleChange}
-                                placeholder="Please specify other sector"
-                                className="w-full px-3 py-2 rounded-md border border-gray-200 text-sm"
+                                type="checkbox"
+                                checked={formData.technoTransfer.sectors[sector]}
+                                onChange={handleNestedChange('technoTransfer', 'sectors', sector)}
+                                className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
                               />
-                            </div>
-                          )}
-                        </div>
+                              <span className="text-sm text-gray-500">
+                                {sector.replace(/([A-Z])/g, ' $1').trim()}
+                              </span>
+                            </label>
+                          )
+                        ))}
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.technoTransfer.sectors.others}
+                            onChange={handleNestedChange('technoTransfer', 'sectors', 'others')}
+                            className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
+                          />
+                          <span className="text-sm text-gray-500">Others</span>
+                        </label>
+                        {formData.technoTransfer.sectors.others && (
+                          <div className="col-span-2 mt-2">
+                            <input
+                              type="text"
+                              name="technoTransfer.othersSpecify"
+                              value={formData.technoTransfer.othersSpecify}
+                              onChange={handleChange}
+                              placeholder="Please specify other sector"
+                              className="w-full px-3 py-2 rounded-md border border-gray-200 text-sm"
+                            />
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
 
                   {/* Technology Consultancy */}
@@ -368,46 +366,44 @@ const StaffInput = () => {
                       <span className="text-sm text-gray-700 font-medium">Technology Consultancy</span>
                     </label>
                     
-                    {formData.technoConsultancy.enabled && (
-                      <div className="px-4 pb-4 pt-2 bg-gray-50">
-                        <div className="grid grid-cols-2 gap-3">
-                          {Object.keys(formData.technoConsultancy.services).map((service) => (
-                            service !== 'others' && service !== 'othersSpecify' && (
-                              <label key={service} className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={formData.technoConsultancy.services[service]}
-                                  onChange={handleNestedChange('technoConsultancy', 'services', service)}
-                                  className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                                />
-                                <span className="text-sm text-gray-500">{service.toUpperCase()}</span>
-                              </label>
-                            )
-                          ))}
-                          <label className="flex items-center gap-2">
-                            <input
-                              type="checkbox"
-                              checked={formData.technoConsultancy.services.others}
-                              onChange={handleNestedChange('technoConsultancy', 'services', 'others')}
-                              className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
-                            />
-                            <span className="text-sm text-gray-500">Others</span>
-                          </label>
-                          {formData.technoConsultancy.services.others && (
-                            <div className="col-span-2 mt-2">
+                    <div className="px-4 pb-4 pt-2 bg-gray-50">
+                      <div className="grid grid-cols-2 gap-3">
+                        {Object.keys(formData.technoConsultancy.services).map((service) => (
+                          service !== 'others' && service !== 'othersSpecify' && (
+                            <label key={service} className="flex items-center gap-2">
                               <input
-                                type="text"
-                                name="technoConsultancy.othersSpecify"
-                                value={formData.technoConsultancy.othersSpecify}
-                                onChange={handleChange}
-                                placeholder="Please specify other service"
-                                className="w-full px-3 py-2 rounded-md border border-gray-200 text-sm"
+                                type="checkbox"
+                                checked={formData.technoConsultancy.services[service]}
+                                onChange={handleNestedChange('technoConsultancy', 'services', service)}
+                                className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
                               />
-                            </div>
-                          )}
-                        </div>
+                              <span className="text-sm text-gray-500">{service.toUpperCase()}</span>
+                            </label>
+                          )
+                        ))}
+                        <label className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={formData.technoConsultancy.services.others}
+                            onChange={handleNestedChange('technoConsultancy', 'services', 'others')}
+                            className="w-4 h-4 text-cyan-600 rounded border-gray-300 focus:ring-cyan-500"
+                          />
+                          <span className="text-sm text-gray-500">Others</span>
+                        </label>
+                        {formData.technoConsultancy.services.others && (
+                          <div className="col-span-2 mt-2">
+                            <input
+                              type="text"
+                              name="technoConsultancy.othersSpecify"
+                              value={formData.technoConsultancy.othersSpecify}
+                              onChange={handleChange}
+                              placeholder="Please specify other service"
+                              className="w-full px-3 py-2 rounded-md border border-gray-200 text-sm"
+                            />
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               </div>

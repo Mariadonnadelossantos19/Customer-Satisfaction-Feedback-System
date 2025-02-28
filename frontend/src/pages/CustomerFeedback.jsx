@@ -30,7 +30,7 @@ const CustomerFeedback = () => {
     },
     recommendationScore: null,
     suggestions: "",
-  });
+  }); 
 
   const [currentStep, setCurrentStep] = useState(1); // 1: Satisfaction, 2: Recommendation, 3: Suggestions
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -48,12 +48,12 @@ const CustomerFeedback = () => {
   ];
 
   const emojiRatings = {
-    6: { emoji: "😡", label: "Very Dissatisfied", color: "bg-red-100" },
-    5: { emoji: "😟", label: "Dissatisfied", color: "bg-orange-100" },
-    4: { emoji: "😐", label: "Neutral", color: "bg-yellow-100" },
-    3: { emoji: "😊", label: "Satisfied", color: "bg-blue-100" },
-    2: { emoji: "😁", label: "Very Satisfied", color: "bg-green-100" },
-    1: { emoji: "🤩", label: "Outstanding", color: "bg-purple-100" },
+    1: { emoji: "😡", label: "Very Dissatisfied", color: "bg-red-100" },
+    2: { emoji: "😟", label: "Dissatisfied", color: "bg-orange-100" },
+    3: { emoji: "😐", label: "Neutral", color: "bg-yellow-100" },
+    4: { emoji: "😊", label: "Satisfied", color: "bg-blue-100" },
+    5: { emoji: "😁", label: "Very Satisfied", color: "bg-green-100" },
+    6: { emoji: "🤩", label: "Outstanding", color: "bg-purple-100" },
   };
 
   const handleSatisfactionChange = (category, value) => {

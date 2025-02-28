@@ -12,7 +12,7 @@ const createCustomerFeedback = async (req, res) => {
 };
 
 // Get all customer feedbacks
-const getCustomerFeedbacks = async (req, res) => {
+const getCustomerFeedbacks = async (req, res) => {   
   try {
     const customerFeedbacks = await CustomerFeedback.find({})
       .populate("customerProfile")

@@ -10,6 +10,7 @@ const customerFeedbackSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "StaffVisit",
     required: true,
+    unique: true
   },
   satisfaction: {
     speedAndTimeliness: {
