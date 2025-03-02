@@ -12,13 +12,16 @@ const Admin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Default to current month
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear()); // Default to current year
   const [selectedService, setSelectedService] = useState('');
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [feedback, setFeedback] = useState({ customerFeedback: {} });
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = feedbacks.length; // Set to the total number of feedbacks
+  const [sortCriteria, setSortCriteria] = useState('date'); // Default sort by date
+  const [sortOrder, setSortOrder] = useState('asc'); // Default sort order
 
   useEffect(() => {
     fetchFeedbacks();
@@ -72,22 +75,23 @@ const Admin = () => {
     }
   };
 
-  // Calculate metrics
-  const uniqueCustomers = new Set(feedbacks.map(feedback => feedback.customerProfile?.name));
-  const customerCount = uniqueCustomers.size;
+  // Calculate total customers based on feedback responses
+  const customerCount = feedbacks.length; // Total responses will equal total customers
 
+  // Calculate total satisfaction
   const totalSatisfaction = feedbacks.reduce((acc, feedback) => {
     const ratings = feedback.customerFeedback?.satisfaction;
     return acc + (ratings ? Object.values(ratings).reduce((sum, rating) => sum + (rating || 0), 0) : 0);
   }, 0);
-  
+
   const totalRatingsCount = feedbacks.reduce((acc, feedback) => {
     const ratings = feedback.customerFeedback?.satisfaction;
     return acc + (ratings ? Object.values(ratings).filter(rating => rating !== null).length : 0);
   }, 0);
-  
+
   const averageSatisfaction = totalRatingsCount > 0 ? (totalSatisfaction / totalRatingsCount).toFixed(2) : 'N/A';
 
+  // Calculate recommendation score
   const recommendationScoreAvg = feedbacks.reduce((acc, feedback) => {
     return acc + (feedback.customerFeedback?.recommendationScore || 0);
   }, 0) / (feedbacks.length || 1);
@@ -114,8 +118,28 @@ const Admin = () => {
   // Calculate the total number of pages
   const totalPages = Math.ceil(filteredFeedbacks.length / itemsPerPage);
 
-  // Get current feedbacks for the page
-  const currentFeedbacks = filteredFeedbacks; // Show filtered feedbacks
+  // Sorting function
+  const sortFeedbacks = (feedbacks) => {
+    return feedbacks.sort((a, b) => {
+      let comparison = 0;
+
+      // Determine comparison based on selected criteria
+      if (sortCriteria === 'date') {
+        comparison = new Date(a.dateOfVisit) - new Date(b.dateOfVisit);
+      } else if (sortCriteria === 'name') {
+        comparison = a.customerProfile?.name.localeCompare(b.customerProfile?.name);
+      } else if (sortCriteria === 'satisfaction') {
+        const satisfactionA = a.customerFeedback?.satisfaction?.overallPerception || 0;
+        const satisfactionB = b.customerFeedback?.satisfaction?.overallPerception || 0;
+        comparison = satisfactionA - satisfactionB;
+      }
+
+      // Reverse comparison for descending order
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const currentFeedbacks = sortFeedbacks(feedbacks); // Call the sorting function
 
   const downloadCSV = () => {
     const headers = ['Date', 'Name', 'Organization', 'Satisfaction Score'];
@@ -194,6 +218,16 @@ const Admin = () => {
   // New summary calculations
   const totalFeedbacks = feedbacks.length;
 
+  const handleSortChange = (criteria) => {
+    if (sortCriteria === criteria) {
+      // Toggle sort order if the same criteria is selected
+      setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortCriteria(criteria);
+      setSortOrder('asc'); // Reset to ascending order when changing criteria
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       {/* Main Content */}
@@ -209,12 +243,12 @@ const Admin = () => {
         </div>
         
         {/* Metrics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-blue-500 transition-all duration-300 hover:shadow-md">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Average Satisfaction</p>
-                <p className="text-2xl font-bold text-gray-800">{averageSatisfaction}<span className="text-sm font-normal text-gray-500">/5</span></p>
+                <p className="text-2xl font-bold text-gray-800">{averageSatisfaction}<span className="text-sm font-normal text-gray-500">/6</span></p>
               </div>
               <div className="bg-blue-50 p-3 rounded-full">
                 <FiActivity className="h-6 w-6 text-blue-600" />
@@ -223,7 +257,7 @@ const Admin = () => {
             <div className="mt-2 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
               <div 
                 className="h-1 bg-blue-500" 
-                style={{ width: `${Math.min((parseFloat(averageSatisfaction) / 5) * 100, 100)}%` }}
+                style={{ width: `${Math.min((parseFloat(averageSatisfaction) / 6) * 100, 100)}%` }}
               ></div>
             </div>
           </div>
@@ -260,21 +294,6 @@ const Admin = () => {
               ></div>
             </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm p-5 border-l-4 border-purple-500 transition-all duration-300 hover:shadow-md">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-mono uppercase tracking-wider text-gray-500 mb-1">Data points</p>
-                <p className="text-2xl font-bold text-gray-800">{totalRatingsCount}</p>
-              </div>
-              <div className="bg-purple-50 p-3 rounded-full">
-                <FiDatabase className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-            <p className="mt-2 text-sm text-gray-500">
-              Across {Object.keys(feedbacks[0]?.customerFeedback?.satisfaction || {}).length || 0} metrics
-            </p>
-          </div>
         </div>
         
         {/* Alert for errors */}
@@ -306,26 +325,34 @@ const Admin = () => {
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FiCalendar className="text-gray-400" />
               </div>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => setDateFilter(e.target.value)}
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
                 className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50"
-              />
+              >
+                <option value="">All Months</option>
+                {Array.from({ length: 12 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <FiFilter className="text-gray-400" />
               </div>
               <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
                 className="pl-10 pr-8 py-2 w-full border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 appearance-none"
               >
-                <option value="">All Services</option>
-                <option value="technoTransfer">Technology Transfer</option>
-                <option value="technoConsultancy">Technical Consultancy</option>
-                <option value="tna">TNA</option>
+                <option value="">All Years</option>
+                {Array.from({ length: 5 }, (_, i) => (
+                  <option key={i} value={new Date().getFullYear() - i}>
+                    {new Date().getFullYear() - i}
+                  </option>
+                ))}
               </select>
               <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                 <svg className="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 20 20" stroke="currentColor">
@@ -353,12 +380,32 @@ const Admin = () => {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Services</th>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff</th>
-                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satisfaction</th>
+                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortChange('date')} className="flex items-center">
+                      Date
+                      {sortCriteria === 'date' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                    </button>
+                  </th>
+                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortChange('name')} className="flex items-center">
+                      Customer
+                      {sortCriteria === 'name' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                    </button>
+                  </th>
+                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortChange('organization')} className="flex items-center">
+                      Organization
+                    </button>
+                  </th>
+                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Services
+                  </th>
+                  <th scope="col" className="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <button onClick={() => handleSortChange('satisfaction')} className="flex items-center">
+                      Satisfaction
+                      {sortCriteria === 'satisfaction' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                    </button>
+                  </th>
                   <th scope="col" className="px-4 md:px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
@@ -414,9 +461,6 @@ const Admin = () => {
                               </span>
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 md:px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                          {feedback.attendingStaff || 'N/A'}
                         </td>
                         <td className="px-4 md:px-6 py-4 whitespace-nowrap">
                           {satisfactionAvg !== 'N/A' ? (

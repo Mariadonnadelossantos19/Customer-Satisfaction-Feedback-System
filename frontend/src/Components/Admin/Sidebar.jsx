@@ -8,10 +8,13 @@ import {
   FiSettings, 
   FiLogOut, 
   FiMenu
+
 } from 'react-icons/fi';
 import FeedbackOverview from './FeedbackOverview';
 import Admin from './Admin';
 //import Notifications from './Notifications';
+import Reports from './Reports'
+import Settings from './Settings'
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,9 +32,15 @@ const Sidebar = () => {
       case 'feedback-overview':
         setContent(<FeedbackOverview />);
         break;
+      case 'Reports':
+        setContent(<Reports/>)
       {/*case 'notifications':
         setContent(<Notifications />);*/}
         break;
+      case 'Settings':
+        setContent(<Settings/>);
+        break;
+
       default:
         setContent(<Admin />);
     }
@@ -41,12 +50,12 @@ const Sidebar = () => {
     { id: 'dashboard', icon: FiHome, label: 'Dashboard' },
     { id: 'feedback-overview', icon: FiClipboard, label: 'Feedback Overview' },
     //{ id: 'notifications', icon: FiBell, label: 'Notifications', badge: 10 },
-    { id: 'satisfaction-reports', icon: FiPieChart, label: 'Satisfaction Reports' },
+    { id: 'Reports', icon: FiPieChart, label: 'Satisfaction Reports' },
     //{ id: 'customer-insights', icon: FiDatabase, label: 'Customer Insights' },
   ];
 
   const bottomMenuItems = [
-    { id: 'settings', icon: FiSettings, label: 'Settings' },
+    { id: 'Settings', icon: FiSettings, label: 'Settings' },
     { id: 'logout', icon: FiLogOut, label: 'Logout' },
   ];
 

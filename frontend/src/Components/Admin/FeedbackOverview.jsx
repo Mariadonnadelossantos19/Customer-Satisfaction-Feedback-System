@@ -2,15 +2,20 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   FiEye, FiPrinter, FiX, FiUsers, FiBarChart2, 
-  FiCpu, FiDatabase
+  FiCpu, FiDatabase, FiSearch
 } from 'react-icons/fi';
 
 const FeedbackOverview = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
+  const [selectedYear, setSelectedYear] = useState('');
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [sortCriteria, setSortCriteria] = useState('date'); // Default sort by date
+  const [sortOrder, setSortOrder] = useState('asc'); // Default sort order
 
   useEffect(() => {
     fetchFeedbacks();
@@ -139,6 +144,52 @@ const FeedbackOverview = () => {
     }, 100); // Adjust the delay as needed
   };
 
+  // Search functionality
+  const filteredFeedbacks = feedbacks.filter(feedback => {
+    const name = feedback.customerProfile?.name?.toLowerCase() || '';
+    const organization = feedback.customerProfile?.organizationName?.toLowerCase() || '';
+    return name.includes(searchTerm.toLowerCase()) || organization.includes(searchTerm.toLowerCase());
+  });
+
+  // Filter by month and year
+  const monthFilteredFeedbacks = filteredFeedbacks.filter(feedback => {
+    const feedbackDate = new Date(feedback.dateOfVisit);
+    const monthMatch = selectedMonth ? feedbackDate.getMonth() + 1 === parseInt(selectedMonth) : true;
+    const yearMatch = selectedYear ? feedbackDate.getFullYear() === parseInt(selectedYear) : true;
+    return monthMatch && yearMatch;
+  });
+
+  // Sorting function
+  const sortFeedbacks = (feedbacks) => {
+    return feedbacks.sort((a, b) => {
+      let comparison = 0;
+
+      // Determine comparison based on selected criteria
+      if (sortCriteria === 'date') {
+        comparison = new Date(a.dateOfVisit) - new Date(b.dateOfVisit);
+      } else if (sortCriteria === 'name') {
+        comparison = a.customerProfile?.name.localeCompare(b.customerProfile?.name);
+      } else if (sortCriteria === 'organization') {
+        comparison = a.customerProfile?.organizationName.localeCompare(b.customerProfile?.organizationName);
+      }
+
+      // Reverse comparison for descending order
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+  };
+
+  const handleSortChange = (criteria) => {
+    if (sortCriteria === criteria) {
+      // Toggle sort order if the same criteria is selected
+      setSortOrder(prevOrder => (prevOrder === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortCriteria(criteria);
+      setSortOrder('asc'); // Reset to ascending order when changing criteria
+    }
+  };
+
+  const currentFeedbacks = sortFeedbacks(monthFilteredFeedbacks); // Call the sorting function on filtered feedbacks
+
   return (
     <div className="flex-1 flex flex-col p-6">
       {/* Header */}
@@ -147,6 +198,46 @@ const FeedbackOverview = () => {
           Feedback <span className="text-cyan-600">Records</span>
         </h1>
         <p className="text-gray-500">View and analyze customer feedback submissions</p>
+      </div>
+      
+      {/* Search Bar and Filters */}
+      <div className="flex mb-4 space-x-4 items-center">
+        <div className="relative w-full">
+          <input
+            type="text"
+            placeholder="Search by name or organization..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="border border-gray-300 rounded-md p-2 pl-10 w-full focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+          <FiSearch className="absolute left-3 top-2.5 text-gray-400" />
+        </div>
+
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        >
+          <option value="">All Months</option>
+          {Array.from({ length: 12 }, (_, i) => (
+            <option key={i} value={i + 1}>
+              {new Date(0, i).toLocaleString('default', { month: 'long' })}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(e.target.value)}
+          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+        >
+          <option value="">All Years</option>
+          {Array.from({ length: 5 }, (_, i) => (
+            <option key={i} value={new Date().getFullYear() - i}>
+              {new Date().getFullYear() - i}
+            </option>
+          ))}
+        </select>
       </div>
       
       {/* Alert for errors */}
@@ -169,9 +260,24 @@ const FeedbackOverview = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr className="bg-gray-50">
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Organization</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button onClick={() => handleSortChange('date')} className="flex items-center">
+                    Date
+                    {sortCriteria === 'date' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                  </button>
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button onClick={() => handleSortChange('name')} className="flex items-center">
+                    Customer
+                    {sortCriteria === 'name' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                  </button>
+                </th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <button onClick={() => handleSortChange('organization')} className="flex items-center">
+                    Organization
+                    {sortCriteria === 'organization' && (sortOrder === 'asc' ? ' 🔼' : ' 🔽')}
+                  </button>
+                </th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Services</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Staff</th>
                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Satisfaction</th>
@@ -188,21 +294,21 @@ const FeedbackOverview = () => {
                     </div>
                   </td>
                 </tr>
-              ) : feedbacks.length === 0 ? (
+              ) : currentFeedbacks.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-16 text-center border-b border-gray-200 bg-white">
+                  <td colSpan="7" className="px-4 md:px-6 py-12 text-center border-b border-gray-200 bg-white">
                     <div className="flex flex-col items-center justify-center">
-                      <FiDatabase className="h-12 w-12 text-gray-300 mb-4" />
-                      <p className="text-gray-500 mb-2">No feedback data available</p>
+                      <FiDatabase className="h-10 w-10 text-gray-300 mb-4" />
+                      <p className="text-gray-500">No feedback data matching your filters</p>
                     </div>
                   </td>
                 </tr>
               ) : (
-                feedbacks.map((feedback) => {
+                currentFeedbacks.map((feedback) => {
                   const satisfactionAvg = calculateAverageSatisfaction(feedback.customerFeedback?.satisfaction);
                   
                   return (
-                    <tr key={feedback._id} className="hover:bg-gray-50 transition-colors duration-150">
+                    <tr key={feedback._id} className="hover:bg-blue-50 transition-colors duration-150">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         {feedback.dateOfVisit ? new Date(feedback.dateOfVisit).toLocaleDateString() : 'N/A'}
                       </td>
