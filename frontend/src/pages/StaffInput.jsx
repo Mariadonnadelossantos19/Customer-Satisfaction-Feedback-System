@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { FiCalendar, FiUser, FiInfo, FiCheckSquare, FiAlertCircle, FiX, FiEdit2 } from "react-icons/fi";
 import { Tooltip } from 'react-tooltip';
 import Navbar from "../Components/Layout/Navbar";
-import dostbackground from "../assets/dostbg.jpg"
-import staffGif from "../assets/feedback.gif";
+/*import dostbackground from "../assets/dostbg.jpg"*/
+/*import staffGif from "../assets/feedback.gif";*/
 import { ArrowLeft, ArrowRight, Database, Atom, Code, Microscope, Server, Cpu, BrainCircuit } from 'lucide-react';
 import Confetti from "react-confetti";
 
@@ -49,12 +49,7 @@ const DataPoints = () => {
           }}
         />
       ))}
-      <style jsx>{`
-        @keyframes float {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px); }
-        }
-      `}</style>
+      
     </div>
   );
 };

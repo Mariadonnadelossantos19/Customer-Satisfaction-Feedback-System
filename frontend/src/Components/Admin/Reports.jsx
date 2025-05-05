@@ -453,15 +453,15 @@ const Reports = () => {
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
               <Pie
-                data={calculateServiceDistribution()}
-                dataKey="value"
+                data={Object.values(analyzeServiceUsage().details)}
+                dataKey="count"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
                 label
               >
-                {calculateServiceDistribution().map((entry, index) => (
+                {Object.values(analyzeServiceUsage().details).map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                 ))}
               </Pie>

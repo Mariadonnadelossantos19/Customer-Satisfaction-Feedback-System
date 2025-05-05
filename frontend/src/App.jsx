@@ -4,21 +4,17 @@ import StaffInput from "./pages/StaffInput";
 import SectionOne from "./pages/SectionOne";
 import CustomerFeedback from "./pages/CustomerFeedback";
 import LibraryFeedback from "./pages/LibraryFeedback";
-import Navbar from "./Components/Layout/Navbar"
+import Navbar from "./Components/Layout/Navbar";
 //import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
 import ReviewSummary from "./pages/ReviewSummary";
-import Learnmore from "./pages/Learnmore"
+import Learnmore from "./pages/Learnmore";
 import Introduction from "./pages/Introduction";
-import Admin from "./Components/Admin/Admin";
-import Love from "./pages/love";
-import Sidebar from "./Components/Admin/Sidebar";
-
-
+import Dashboard from "./Components/Admin/Dashboard";
+import Homepage from "./Components/Admin/Homepage";
 
 const App = () => {
   return (
     <Router>
-      
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/staff-input" element={<StaffInput />} />
@@ -28,20 +24,11 @@ const App = () => {
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/learn-more" element={<Learnmore />} />
-        <Route path="/Admin" element={<Admin />} />
-        <Route path="/love" element={<Love/>} />
-        <Route path="/sidebar" element={<Sidebar />} /> 
-    
-        
+        <Route path="/Dashboard" element={<Dashboard />} />
+        <Route path="/Homepage" element={<Homepage />} />
+
         <Route path="/introduction" element={<Introduction />} />
-        
 
-        
-
-
-
-
-      
         {/* Add more routes here as needed */}
       </Routes>
     </Router>

@@ -350,7 +350,7 @@ export class PrintService {
             table, tr, td {
               border-collapse: collapse;
             }
-            u {
+            u { 
               display: inline-block;
               min-width: 100px;
             }
