@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { saveAs } from 'file-saver';
+import Papa from 'papaparse';
 import {
   FiDownload,
   FiBarChart2,
@@ -8,6 +10,8 @@ import {
   FiCalendar,
   FiUsers,
   FiList,
+  FiInfo,
+  FiFilter,
 } from 'react-icons/fi';
 import {
   BarChart,
@@ -23,6 +27,7 @@ import {
   LineChart,
   Line,
   ResponsiveContainer,
+  LabelList,
 } from 'recharts';
 
 const Reports = () => {
@@ -31,6 +36,7 @@ const Reports = () => {
   const [error, setError] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('monthly');
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
     fetchFeedbacks();
@@ -349,8 +355,211 @@ const Reports = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
+  // Download Service Distribution as CSV
   const downloadReport = () => {
-    // Implementation for downloading report as PDF or Excel
+    const services = Object.values(analyzeServiceUsage().details);
+    const csv = Papa.unparse(
+      services.map(service => ({
+        'Service Name': service.name,
+        'Total Requests': service.count,
+        'Percentage of Total Services': service.percentage + '%',
+      }))
+    );
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, `service-distribution-report-${new Date().toISOString().slice(0,10)}.csv`);
+  };
+
+  const renderOverviewTab = () => (
+    <div className="space-y-6">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-700">Total Customers</h3>
+            <FiUsers className="text-blue-500 text-xl" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {calculateCustomerUsage().yearly.find(y => y.year === selectedYear.toString())?.customers || 0}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">Total customers for {selectedYear}</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-700">Average Satisfaction</h3>
+            <FiBarChart2 className="text-green-500 text-xl" />
+          </div>
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {(calculateSatisfactionMetrics().reduce((acc, curr) => acc + parseFloat(curr.value), 0) / 
+              calculateSatisfactionMetrics().length).toFixed(2)}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">Out of 5.0 rating</p>
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-medium text-gray-700">Most Popular Service</h3>
+            <FiPieChart className="text-purple-500 text-xl" />
+          </div>
+          <p className="text-xl font-bold text-gray-900 mt-2">
+            {analyzeServiceUsage().details.technoTransfer.name}
+          </p>
+          <p className="text-sm text-gray-500 mt-1">
+            {analyzeServiceUsage().details.technoTransfer.percentage}% of total services
+          </p>
+        </div>
+      </div>
+
+      {/* Monthly Trends */}
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-800">Monthly Customer Trends</h2>
+          <div className="flex items-center space-x-4">
+            <select
+              value={selectedYear}
+              onChange={(e) => setSelectedYear(Number(e.target.value))}
+              className="px-3 py-2 border rounded-lg text-sm"
+            >
+              {Array.from({ length: 5 }, (_, i) => (
+                <option key={i} value={new Date().getFullYear() - i}>
+                  {new Date().getFullYear() - i}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={generateMonthlyTrends()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="satisfaction" 
+                stroke="#8884d8" 
+                name="Satisfaction Score"
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderSatisfactionTab = () => (
+    <div className="space-y-6">
+      <div className="bg-white p-6 rounded-xl shadow-sm">
+        <h2 className="text-xl font-semibold text-gray-800 mb-6">Satisfaction Metrics</h2>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={calculateSatisfactionMetrics()}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
+              <YAxis domain={[0, 5]} />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="value" fill="#0088FE" name="Satisfaction Score" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {calculateSatisfactionMetrics().map((metric, index) => (
+          <div key={index} className="bg-white p-6 rounded-xl shadow-sm">
+            <h3 className="text-lg font-medium text-gray-700 mb-4">{metric.name}</h3>
+            <div className="flex items-center justify-between">
+              <div className="w-full bg-gray-200 rounded-full h-2.5">
+                <div 
+                  className="bg-blue-600 h-2.5 rounded-full" 
+                  style={{ width: `${(metric.value / 5) * 100}%` }}
+                ></div>
+              </div>
+              <span className="ml-4 text-lg font-semibold text-gray-700">{metric.value}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderServicesTab = () => {
+    // Hanapin ang top service
+    const services = Object.values(analyzeServiceUsage().details);
+    const topService = services.reduce((max, curr) => (curr.count > max.count ? curr : max), services[0]);
+    return (
+      <div className="space-y-6">
+        <div className="bg-white p-6 rounded-xl shadow-sm">
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Service Distribution</h2>
+          <p className="text-gray-500 mb-6">
+            Ipinapakita ng graph na ito ang dami ng requests para sa bawat serbisyo. Mas mataas ang bar, mas maraming gumagamit ng serbisyo. Ang mga detalye sa ibaba ay nagpapakita ng eksaktong bilang at porsyento ng bawat serbisyo.
+          </p>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={services}
+                layout="vertical"
+                margin={{ top: 20, right: 40, left: 120, bottom: 20 }}
+                barCategoryGap={20}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" allowDecimals={false} fontSize={14} />
+                <YAxis type="category" dataKey="name" width={220} fontSize={14} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count" name="Total Requests" isAnimationActive={true}>
+                  {services.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                  {/* Value labels sa dulo ng bar */}
+                  <LabelList dataKey="count" position="right" fontSize={16} />
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {services.map((service, index) => (
+            <div
+              key={index}
+              className={`relative bg-white p-6 rounded-xl shadow-sm border transition-all duration-200 ${
+                service.name === topService.name
+                  ? 'border-blue-500 ring-2 ring-blue-200 scale-[1.03]'
+                  : 'border-gray-200'
+              }`}
+            >
+              {service.name === topService.name && (
+                <span className="absolute top-2 right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-semibold shadow">Most Requested</span>
+              )}
+              <h3 className="text-lg font-medium text-gray-700 mb-2 flex items-center gap-2">
+                {/* Optional: maglagay ng icon dito kung gusto mo */}
+                {service.name}
+              </h3>
+              <div className="mt-2">
+                <p className="text-3xl font-bold text-gray-900">{service.count}</p>
+                <p className="text-sm text-gray-500 mt-1">Total requests</p>
+              </div>
+              <div className="mt-4">
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="h-2.5 rounded-full transition-all duration-200"
+                    style={{
+                      width: `${service.percentage}%`,
+                      background: COLORS[index % COLORS.length],
+                    }}
+                  ></div>
+                </div>
+                <p className="text-sm text-gray-500 mt-1">{service.percentage}% ng lahat ng serbisyo</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -365,193 +574,48 @@ const Reports = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-medium flex items-center">
-              <FiUsers className="mr-2" /> Customer Usage Statistics
-            </h2>
-            <select
-              value={selectedYear}
-              onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="px-3 py-2 border rounded-lg"
+      {/* Tabs */}
+      <div className="mb-6">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8">
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`${
+                activeTab === 'overview'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
             >
-              {Array.from({ length: 5 }, (_, i) => (
-                <option key={i} value={new Date().getFullYear() - i}>
-                  {new Date().getFullYear() - i}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-4">Monthly Customer Count ({selectedYear})</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={calculateCustomerUsage().monthly}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="customers" fill="#4F46E5" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-4">Yearly Customer Count</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={calculateCustomerUsage().yearly}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="year" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="customers" fill="#10B981" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <h4 className="text-indigo-600 text-sm font-medium">Total Customers This Month</h4>
-                <p className="text-2xl font-bold text-indigo-700">
-                  {calculateCustomerUsage().monthly[new Date().getMonth()].customers}
-                </p>
-              </div>
-              <div className="bg-emerald-50 p-4 rounded-lg">
-                <h4 className="text-emerald-600 text-sm font-medium">Total Customers This Year</h4>
-                <p className="text-2xl font-bold text-emerald-700">
-                  {calculateCustomerUsage().yearly.find(y => y.year === selectedYear.toString())?.customers || 0}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Satisfaction Metrics */}
-        <div className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-medium mb-4 flex items-center">
-            <FiBarChart2 className="mr-2" /> Satisfaction Metrics
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={calculateSatisfactionMetrics()}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" angle={-45} textAnchor="end" height={100} />
-              <YAxis domain={[0, 5]} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="value" fill="#0088FE" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Service Distribution */}
-        <div className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-medium mb-4 flex items-center">
-            <FiPieChart className="mr-2" /> Service Distribution
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={Object.values(analyzeServiceUsage().details)}
-                dataKey="count"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={100}
-                label
-              >
-                {Object.values(analyzeServiceUsage().details).map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Monthly Trends */}
-        <div className="bg-white p-6 rounded-xl shadow-sm lg:col-span-2">
-          <h2 className="text-lg font-medium mb-4 flex items-center">
-            <FiTrendingUp className="mr-2" /> Satisfaction Trends
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={generateMonthlyTrends()}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis domain={[0, 5]} />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="satisfaction" stroke="#8884d8" />
-            </LineChart>
-          </ResponsiveContainer>
+              Overview
+            </button>
+            <button
+              onClick={() => setActiveTab('satisfaction')}
+              className={`${
+                activeTab === 'satisfaction'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Satisfaction
+            </button>
+            <button
+              onClick={() => setActiveTab('services')}
+              className={`${
+                activeTab === 'services'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm`}
+            >
+              Services
+            </button>
+          </nav>
         </div>
       </div>
 
-      {/* Add this new section after existing charts */}
-      <div className="mt-6">
-        <div className="bg-white p-6 rounded-xl shadow-sm">
-          <h2 className="text-lg font-medium mb-6 flex items-center">
-            <FiList className="mr-2" /> Service Usage Analysis
-          </h2>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-            {Object.values(analyzeServiceUsage().details).map((service, index) => (
-              <div key={index} className="bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-sm font-medium text-gray-600">{service.name}</h3>
-                <p className="text-2xl font-bold text-gray-800 mt-2">{service.count}</p>
-                <p className="text-sm text-gray-500">
-                  {service.percentage}% of total services
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Service Usage Trends */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-4">Monthly Service Usage Trends</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={analyzeServiceUsage().sectorAnalysis.technoTransfer}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="count" stroke="#8884d8" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Service Distribution Comparison */}
-            <div>
-              <h3 className="text-sm font-medium text-gray-600 mb-4">Service Distribution</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={analyzeServiceUsage().sectorAnalysis.technoTransfer}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="count" fill="#4F46E5">
-                    {analyzeServiceUsage().sectorAnalysis.technoTransfer.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Most Popular Service Card */}
-          <div className="mt-6 bg-blue-50 p-4 rounded-lg">
-            <h3 className="text-blue-600 text-sm font-medium">Most Requested Service</h3>
-            <p className="text-xl font-bold text-blue-700 mt-1">
-              {analyzeServiceUsage().details.technoTransfer.name}
-            </p>
-          </div>
-        </div>
-      </div>
+      {/* Content */}
+      {activeTab === 'overview' && renderOverviewTab()}
+      {activeTab === 'satisfaction' && renderSatisfactionTab()}
+      {activeTab === 'services' && renderServicesTab()}
     </div>
   );
 };
