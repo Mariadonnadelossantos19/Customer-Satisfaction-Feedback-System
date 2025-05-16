@@ -166,11 +166,17 @@ const Admin = () => {
 
       // Determine comparison based on selected criteria
       if (sortCriteria === "date") {
-        comparison = new Date(a.dateOfVisit) - new Date(b.dateOfVisit);
+        const dateA = a.dateOfVisit ? new Date(a.dateOfVisit).getTime() : 0;
+        const dateB = b.dateOfVisit ? new Date(b.dateOfVisit).getTime() : 0;
+        comparison = dateA - dateB;
       } else if (sortCriteria === "name") {
-        comparison = a.customerProfile?.name.localeCompare(
-          b.customerProfile?.name
-        );
+        const nameA = a.customerProfile?.name || "";
+        const nameB = b.customerProfile?.name || "";
+        comparison = nameA.localeCompare(nameB);
+      } else if (sortCriteria === "organization") {
+        const orgA = a.customerProfile?.organizationName || "";
+        const orgB = b.customerProfile?.organizationName || "";
+        comparison = orgA.localeCompare(orgB);
       } else if (sortCriteria === "satisfaction") {
         const satisfactionA =
           a.customerFeedback?.satisfaction?.overallPerception || 0;
@@ -562,7 +568,7 @@ const Admin = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan="7" className="px-4 md:px-6 py-12 text-center">
+                    <td colSpan={7} className="px-4 md:px-6 py-12 text-center">
                       <div className="flex flex-col items-center justify-center">
                         <div className="spinner h-8 w-8 rounded-full border-b-2 border-t-2 border-blue-600 animate-spin mb-4"></div>
                         <p className="text-gray-500">
@@ -574,7 +580,7 @@ const Admin = () => {
                 ) : currentFeedbacks.length === 0 ? (
                   <tr>
                     <td
-                      colSpan="7"
+                      colSpan={7}
                       className="px-4 md:px-6 py-12 text-center border-b border-gray-200 bg-white"
                     >
                       <div className="flex flex-col items-center justify-center">
@@ -681,6 +687,7 @@ const Admin = () => {
 
       {showDetailsModal && (
         <DetailsModal
+          isOpen={showDetailsModal} // Pass the isOpen prop
           feedback={selectedFeedback}
           onClose={() => setShowDetailsModal(false)}
         />
