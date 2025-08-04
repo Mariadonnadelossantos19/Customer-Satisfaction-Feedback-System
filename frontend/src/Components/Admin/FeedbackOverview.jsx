@@ -34,68 +34,67 @@ const FeedbackOverview = () => {
   const fetchFeedbacks = async () => {
     try {
       setLoading(true);
-      const staffVisitsResponse = await axios.get(
-        "http://localhost:5000/api/staff-visits/"
-      );
+      
+      // Fetch both staff visits and customer feedbacks
+      const [staffVisitsResponse, feedbacksResponse] = await Promise.all([
+        axios.get("http://localhost:5000/api/staff-visits/"),
+        axios.get("http://localhost:5000/api/customer-feedback/")
+      ]);
 
       if (staffVisitsResponse.data && Array.isArray(staffVisitsResponse.data)) {
-        const staffVisitsWithFeedback = await Promise.all(
-          staffVisitsResponse.data.map(async (staffVisit) => {
-            try {
-              const feedbackResponse = await axios.get(
-                `http://localhost:5000/api/customer-feedback/`,
-                {
-                  params: {
-                    // Adjust parameters if needed
-                  },
-                }
-              );
-              console.log("Feedback Response:", feedbackResponse.data);
+        // Debug: Log the feedback data structure
+        console.log("All feedbacks:", feedbacksResponse.data);
+        console.log("All staff visits:", staffVisitsResponse.data);
+        
+        // Create a map of feedbacks by staffVisit ID for efficient lookup
+        const feedbacksMap = {};
+        feedbacksResponse.data.forEach(feedback => {
+          console.log("Processing feedback:", feedback);
+          console.log("Feedback staffVisit ID:", feedback.staffVisit);
+          // Convert to string to ensure proper matching
+          const staffVisitId = feedback.staffVisit?.toString() || feedback.staffVisit;
+          feedbacksMap[staffVisitId] = feedback;
+        });
+        
+        console.log("Feedbacks map:", feedbacksMap);
 
-              // Check if feedback exists and set it, otherwise set default feedback
-              const customerFeedback =
-                feedbackResponse.data.length > 0
-                  ? feedbackResponse.data[0]
-                  : {
-                      satisfaction: {
-                        speedAndTimeliness: 4,
-                        qualityOfService: 5,
-                        relevanceOfService: 4,
-                        staffCompetence: 5,
-                        staffAttitude: 4,
-                        overallPerception: 4.5,
-                      },
-                      recommendationScore: 9,
-                      suggestions: "Great service!",
-                    };
-
-              return {
-                ...staffVisit,
-                customerFeedback,
-              };
-            } catch (error) {
-              console.log(
-                `Error processing staff visit ${staffVisit._id}`,
-                error
-              );
-              return {
-                ...staffVisit,
-                customerFeedback: {
-                  satisfaction: {
-                    speedAndTimeliness: 4,
-                    qualityOfService: 5,
-                    relevanceOfService: 4,
-                    staffCompetence: 5,
-                    staffAttitude: 4,
-                    overallPerception: 4.5,
-                  },
-                  recommendationScore: 9,
-                  suggestions: "Great service!",
+        // Combine staff visits with their corresponding feedback
+        const staffVisitsWithFeedback = staffVisitsResponse.data.map((staffVisit) => {
+          console.log("Processing staff visit:", staffVisit._id);
+          console.log("Looking for feedback with staffVisit ID:", staffVisit._id);
+          
+          // Convert to string to ensure proper matching
+          const staffVisitId = staffVisit._id?.toString() || staffVisit._id;
+          
+          // Find the specific feedback for this staff visit
+          const customerFeedback = feedbacksMap[staffVisitId];
+          
+          if (customerFeedback) {
+            console.log("Found customer feedback:", customerFeedback);
+            return {
+              ...staffVisit,
+              customerFeedback,
+            };
+          } else {
+            console.log("No feedback found for staff visit:", staffVisitId);
+            // Return staff visit with default feedback
+            return {
+              ...staffVisit,
+              customerFeedback: {
+                satisfaction: {
+                  speedAndTimeliness: 4,
+                  qualityOfService: 5,
+                  relevanceOfService: 4,
+                  staffCompetence: 5,
+                  staffAttitude: 4,
+                  overallPerception: 4.5,
                 },
-              };
-            }
-          })
-        );
+                recommendationScore: 9,
+                suggestions: "Great service!",
+              },
+            };
+          }
+        });
 
         setFeedbacks(staffVisitsWithFeedback);
         console.log("Fetched Feedbacks:", staffVisitsWithFeedback);
@@ -199,7 +198,7 @@ const FeedbackOverview = () => {
   const monthFilteredFeedbacks = filteredFeedbacks.filter((feedback) => {
     const feedbackDate = new Date(feedback.dateOfVisit);
     const monthMatch = selectedMonth
-      ? feedbackDate.getMonth() + 1 === parseInt(selectedMonth)
+      ? feedbackDate.getMonth() + 1 === selectedMonth
       : true;
     const yearMatch = selectedYear
       ? feedbackDate.getFullYear() === parseInt(selectedYear)
@@ -297,10 +296,10 @@ const FeedbackOverview = () => {
 
         <select
           value={selectedYear}
-          onChange={(e) => setSelectedYear(e.target.value)}
+          onChange={(e) => setSelectedYear(e.target.value === "" ? 0 : Number(e.target.value))}
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         >
-          <option value="">All Years</option>
+          <option value={0}>All Years</option>
           {Array.from({ length: 5 }, (_, i) => (
             <option key={i} value={new Date().getFullYear() - i}>
               {new Date().getFullYear() - i}

@@ -14,7 +14,17 @@ const createCustomerFeedback = async (req, res) => {
 // Get all customer feedbacks
 const getCustomerFeedbacks = async (req, res) => {   
   try {
-    const customerFeedbacks = await CustomerFeedback.find({})
+    const { staffVisit, staffVisitId } = req.query;
+    const filter = {};
+    
+    // Add staffVisit filter if provided (support both parameter names)
+    if (staffVisit) {
+      filter.staffVisit = staffVisit;
+    } else if (staffVisitId) {
+      filter.staffVisit = staffVisitId;
+    }
+    
+    const customerFeedbacks = await CustomerFeedback.find(filter)
       .populate("customerProfile")
       .populate("staffVisit")
       .sort({ createdAt: -1 });

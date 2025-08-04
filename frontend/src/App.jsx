@@ -6,7 +6,7 @@ import CustomerFeedback from "./pages/CustomerFeedback";
 import LibraryFeedback from "./pages/LibraryFeedback";
 import Navbar from "./Components/Layout/Navbar";
 //import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
-import ReviewSummary from "./pages/ReviewSummary";
+//import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore";
 import Introduction from "./pages/Introduction";
 import Dashboard from "./Components/Admin/Dashboard";
@@ -25,7 +25,7 @@ const App = () => {
         <Route path="/customer-feedback" element={<CustomerFeedback />} />
         <Route path="/library-feedback" element={<LibraryFeedback />} />
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
-        <Route path="/review-summary" element={<ReviewSummary />} />
+        {/*<Route path="/review-summary" element={<ReviewSummary />} />*/}
         <Route path="/learn-more" element={<Learnmore />} />
         <Route path="/introduction" element={<Introduction />} />
 
