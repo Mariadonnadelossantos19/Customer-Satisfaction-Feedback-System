@@ -35,66 +35,71 @@ const FeedbackOverview = () => {
     try {
       setLoading(true);
       
-      // Fetch both staff visits and customer feedbacks
-      const [staffVisitsResponse, feedbacksResponse] = await Promise.all([
-        axios.get("http://localhost:5000/api/staff-visits/"),
-        axios.get("http://localhost:5000/api/customer-feedback/")
-      ]);
+      // Fetch staff visits first
+      const staffVisitsResponse = await axios.get("http://localhost:5000/api/staff-visits/");
 
       if (staffVisitsResponse.data && Array.isArray(staffVisitsResponse.data)) {
-        // Debug: Log the feedback data structure
-        console.log("All feedbacks:", feedbacksResponse.data);
-        console.log("All staff visits:", staffVisitsResponse.data);
-        
-        // Create a map of feedbacks by staffVisit ID for efficient lookup
-        const feedbacksMap = {};
-        feedbacksResponse.data.forEach(feedback => {
-          console.log("Processing feedback:", feedback);
-          console.log("Feedback staffVisit ID:", feedback.staffVisit);
-          // Convert to string to ensure proper matching
-          const staffVisitId = feedback.staffVisit?.toString() || feedback.staffVisit;
-          feedbacksMap[staffVisitId] = feedback;
-        });
-        
-        console.log("Feedbacks map:", feedbacksMap);
+        // Use the same approach as Dashboard - individual API calls for each staff visit
+        const staffVisitsWithFeedback = await Promise.all(
+          staffVisitsResponse.data.map(async (staffVisit) => {
+            try {
+              const feedbackResponse = await axios.get(
+                `http://localhost:5000/api/customer-feedback/`,
+                {
+                  params: {
+                    staffVisitId: staffVisit._id,
+                  },
+                }
+              );
 
-        // Combine staff visits with their corresponding feedback
-        const staffVisitsWithFeedback = staffVisitsResponse.data.map((staffVisit) => {
-          console.log("Processing staff visit:", staffVisit._id);
-          console.log("Looking for feedback with staffVisit ID:", staffVisit._id);
-          
-          // Convert to string to ensure proper matching
-          const staffVisitId = staffVisit._id?.toString() || staffVisit._id;
-          
-          // Find the specific feedback for this staff visit
-          const customerFeedback = feedbacksMap[staffVisitId];
-          
-          if (customerFeedback) {
-            console.log("Found customer feedback:", customerFeedback);
-            return {
-              ...staffVisit,
-              customerFeedback,
-            };
-          } else {
-            console.log("No feedback found for staff visit:", staffVisitId);
-            // Return staff visit with default feedback
-            return {
-              ...staffVisit,
-              customerFeedback: {
-                satisfaction: {
-                  speedAndTimeliness: 4,
-                  qualityOfService: 5,
-                  relevanceOfService: 4,
-                  staffCompetence: 5,
-                  staffAttitude: 4,
-                  overallPerception: 4.5,
+              // Get the specific feedback for this staff visit
+              const matchingFeedback = feedbackResponse.data[0];
+
+              if (matchingFeedback) {
+                console.log("Found feedback for staff visit:", staffVisit._id, matchingFeedback);
+                return {
+                  ...staffVisit,
+                  customerFeedback: matchingFeedback,
+                };
+              } else {
+                console.log("No feedback found for staff visit:", staffVisit._id);
+                // Return staff visit with default feedback
+                return {
+                  ...staffVisit,
+                  customerFeedback: {
+                    satisfaction: {
+                      speedAndTimeliness: 4,
+                      qualityOfService: 5,
+                      relevanceOfService: 4,
+                      staffCompetence: 5,
+                      staffAttitude: 4,
+                      overallPerception: 4.5,
+                    },
+                    recommendationScore: 9,
+                    suggestions: "Great service!",
+                  },
+                };
+              }
+            } catch (error) {
+              console.error(`Error processing staff visit ${staffVisit._id}:`, error);
+              return {
+                ...staffVisit,
+                customerFeedback: {
+                  satisfaction: {
+                    speedAndTimeliness: 4,
+                    qualityOfService: 5,
+                    relevanceOfService: 4,
+                    staffCompetence: 5,
+                    staffAttitude: 4,
+                    overallPerception: 4.5,
+                  },
+                  recommendationScore: 9,
+                  suggestions: "Great service!",
                 },
-                recommendationScore: 9,
-                suggestions: "Great service!",
-              },
-            };
-          }
-        });
+              };
+            }
+          })
+        );
 
         setFeedbacks(staffVisitsWithFeedback);
         console.log("Fetched Feedbacks:", staffVisitsWithFeedback);
