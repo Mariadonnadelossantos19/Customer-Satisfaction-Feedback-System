@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { FiLogOut } from 'react-icons/fi';
 
 const Settings = () => {
+  const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
   const [brightness, setBrightness] = useState(100); // Default brightness to 100%
 
@@ -19,9 +22,24 @@ const Settings = () => {
     document.body.style.filter = `brightness(${e.target.value}%)`; // Adjust brightness
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    navigate('/admin-login');
+  };
+
   return (
     <div className={`settings-container ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'} p-6`}>
-      <h2 className="text-2xl font-bold mb-4">Settings</h2>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Settings</h2>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 font-medium"
+          title="Mag-logout"
+        >
+          <FiLogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
+      </div>
       
       <div className="mb-6">
         <label className="flex items-center">

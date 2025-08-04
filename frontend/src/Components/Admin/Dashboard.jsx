@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   FiSearch,
   FiFilter,
@@ -17,10 +18,12 @@ import {
   FiMaximize2,
   FiPrinter,
   FiEye,
+  FiLogOut,
 } from "react-icons/fi";
 import DetailsModal from "./DetailsModal";
 
 const Admin = () => {
+  const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -301,18 +304,33 @@ const Admin = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    navigate('/admin-login');
+  };
+
   return (
     <div className="flex-1 flex flex-col">
       {/* Main Content */}
       <div className="flex-1 p-4 md:p-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-mono tracking-tight text-gray-800 mb-2">
-            Customer Feedback <span className="text-blue-600">Analytics</span>
-          </h1>
-          <p className="text-gray-500 font-light">
-            Analyze and visualize customer satisfaction data across departments
-          </p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-mono tracking-tight text-gray-800 mb-2">
+              Customer Feedback <span className="text-blue-600">Analytics</span>
+            </h1>
+            <p className="text-gray-500 font-light">
+              Analyze and visualize customer satisfaction data across departments
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 font-medium"
+            title="Mag-logout"
+          >
+            <FiLogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
         </div>
 
         {/* Metrics Cards */}

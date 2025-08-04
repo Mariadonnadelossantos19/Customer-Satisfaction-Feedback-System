@@ -222,7 +222,7 @@ const LearnMore = () => {
             <div>
               <h3 className="text-xl font-bold mb-4">Contact Us</h3>
               <address className="not-italic space-y-2">
-                <p>DOST-MIMAROPA Regional Office, Calapan City, Oriental Mindoro</p>
+                <p>DOST-MIMAROPA Regional Office, Bicutan, Taguig</p>
                 <p>(043) 288-5654</p>
                 <p>mimaropa@region.dost.gov.ph</p>
               </address>

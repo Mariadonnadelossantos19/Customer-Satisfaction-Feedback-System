@@ -11,11 +11,14 @@ import Learnmore from "./pages/Learnmore";
 import Introduction from "./pages/Introduction";
 import Dashboard from "./Components/Admin/Dashboard";
 import Homepage from "./Components/Admin/Homepage";
+import AdminLogin from "./Components/Admin/AdminLogin";
+import ProtectedRoute from "./Components/Admin/ProtectedRoute";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/staff-input" element={<StaffInput />} />
         <Route path="/SectionOne" element={<SectionOne />} />
@@ -24,10 +27,28 @@ const App = () => {
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
         <Route path="/review-summary" element={<ReviewSummary />} />
         <Route path="/learn-more" element={<Learnmore />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/Homepage" element={<Homepage />} />
-
         <Route path="/introduction" element={<Introduction />} />
+
+        {/* Admin Login Route */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+
+        {/* Protected Admin Routes */}
+        <Route 
+          path="/Dashboard" 
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/Homepage" 
+          element={
+            <ProtectedRoute>
+              <Homepage />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Add more routes here as needed */}
       </Routes>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
+import { useNavigate } from 'react-router-dom';
 import {
   FiDownload,
   FiBarChart2,
@@ -12,6 +13,7 @@ import {
   FiList,
   FiInfo,
   FiFilter,
+  FiLogOut,
 } from 'react-icons/fi';
 import {
   BarChart,
@@ -31,6 +33,7 @@ import {
 } from 'recharts';
 
 const Reports = () => {
+  const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -562,16 +565,33 @@ const Reports = () => {
     );
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    navigate('/admin-login');
+  };
+
   return (
     <div className="flex-1 p-6">
       <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-800">Analytics Reports</h1>
-        <button
-          onClick={downloadReport}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          <FiDownload className="mr-2" /> Download Report
-        </button>
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">Analytics Reports</h1>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={downloadReport}
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            <FiDownload className="mr-2" /> Download Report
+          </button>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 font-medium"
+            title="Mag-logout"
+          >
+            <FiLogOut className="w-4 h-4" />
+            <span className="hidden sm:inline">Logout</span>
+          </button>
+        </div>
       </div>
 
       {/* Tabs */}

@@ -139,6 +139,21 @@ const LandingPage = () => {
               </Link>
             </motion.div>
 
+            {/* Admin Access Link */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.0 }}
+              className="mt-8"
+            >
+              <Link
+                to="/admin-login"
+                className="text-sm text-cyan-300 hover:text-cyan-200 underline underline-offset-4 transition-colors duration-200"
+              >
+                Admin Access
+              </Link>
+            </motion.div>
+
             {/* Digital Data Visualization Hint */}
             <motion.div
               initial={{ opacity: 0 }}

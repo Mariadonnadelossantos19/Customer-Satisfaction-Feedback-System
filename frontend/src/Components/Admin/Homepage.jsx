@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiClipboard,
@@ -16,6 +17,7 @@ import Reports from "./Reports";
 import Settings from "./Settings";
 
 const Sidebar = () => {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [content, setContent] = useState(<Admin />);
@@ -40,6 +42,10 @@ const Sidebar = () => {
         break;
       case "Settings":
         setContent(<Settings />);
+        break;
+      case "logout":
+        localStorage.removeItem('isAdmin');
+        navigate('/admin-login');
         break;
 
       default:

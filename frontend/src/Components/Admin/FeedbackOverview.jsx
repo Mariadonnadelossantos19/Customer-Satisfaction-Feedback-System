@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   FiEye,
   FiPrinter,
@@ -9,16 +10,18 @@ import {
   FiCpu,
   FiDatabase,
   FiSearch,
+  FiLogOut,
 } from "react-icons/fi";
 import DetailsModal from "./DetailsModal";
 
 const FeedbackOverview = () => {
+  const navigate = useNavigate();
   const [feedbacks, setFeedbacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
-  const [selectedYear, setSelectedYear] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState(0);
+  const [selectedYear, setSelectedYear] = useState(0);
   const [selectedFeedback, setSelectedFeedback] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [sortCriteria, setSortCriteria] = useState("date"); // Default sort by date
@@ -237,18 +240,33 @@ const FeedbackOverview = () => {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('isAdmin');
+    navigate('/admin-login');
+  };
+
   const currentFeedbacks = sortFeedbacks(monthFilteredFeedbacks); // Call the sorting function on filtered feedbacks
 
   return (
     <div className="flex-1 flex flex-col p-6">
       {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-medium text-gray-800 mb-2">
-          Feedback <span className="text-cyan-600">Records</span>
-        </h1>
-        <p className="text-gray-500">
-          View and analyze customer feedback submissions
-        </p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-medium text-gray-800 mb-2">
+            Feedback <span className="text-cyan-600">Records</span>
+          </h1>
+          <p className="text-gray-500">
+            View and analyze customer feedback submissions
+          </p>
+        </div>
+        <button
+          onClick={handleLogout}
+          className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 font-medium"
+          title="Mag-logout"
+        >
+          <FiLogOut className="w-4 h-4" />
+          <span className="hidden sm:inline">Logout</span>
+        </button>
       </div>
 
       {/* Search Bar and Filters */}
@@ -266,7 +284,7 @@ const FeedbackOverview = () => {
 
         <select
           value={selectedMonth}
-          onChange={(e) => setSelectedMonth(e.target.value)}
+          onChange={(e) => setSelectedMonth(Number(e.target.value))}
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
         >
           <option value="">All Months</option>
