@@ -7,13 +7,14 @@ const {
   updateCustomerFeedback,
   deleteCustomerFeedback,
 } = require("../controllers/customerFeedbackController");
+const { protectAdmin } = require("../middleware/authMiddleware");
 
-router.route("/").post(createCustomerFeedback).get(getCustomerFeedbacks);
+router.route("/").post(createCustomerFeedback).get(protectAdmin, getCustomerFeedbacks);
 
 router
   .route("/:id")
-  .get(getCustomerFeedback)
-  .put(updateCustomerFeedback)
-  .delete(deleteCustomerFeedback);
+  .get(protectAdmin, getCustomerFeedback)
+  .put(protectAdmin, updateCustomerFeedback)
+  .delete(protectAdmin, deleteCustomerFeedback);
 
 module.exports = router;

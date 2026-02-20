@@ -7,29 +7,42 @@ const customerProfileRoutes = require("./routes/customerProfileRoutes");
 const customerFeedbackRoutes = require("./routes/customerFeedbackRoutes");
 const libraryUserFeedbackRoutes = require("./routes/libraryUserFeedbackRoutes");
 const reviewSummaryRoutes = require("./routes/reviewSummaryRoutes");
-const mongoose = require('mongoose');
+const authRoutes = require("./routes/authRoutes");
+const Admin = require("./models/Admin");
 
 const app = express();
 
 // Connect to database
 connectDB();
 
+// Seed default admin if no admins exist
+const seedDefaultAdmin = async () => {
+  try {
+    const count = await Admin.countDocuments();
+    if (count === 0) {
+      await Admin.create({ username: "admin", password: "admin123", role: "admin" });
+      console.log("Default admin created (username: admin, password: admin123). Change password in production.");
+    }
+  } catch (err) {
+    console.error("Seed admin error:", err);
+  }
+};
+seedDefaultAdmin();
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use("/api/auth", authRoutes);
 app.use("/api/staff-visits", staffVisitRoutes);
 app.use("/api/customer-profiles", customerProfileRoutes);
 app.use("/api/customer-feedback", customerFeedbackRoutes);
 app.use("/api/library-feedback", libraryUserFeedbackRoutes);
 app.use("/api/review-summary", reviewSummaryRoutes);
 
-// Connect to MongoDB and start the server
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => {
-    app.listen(process.env.PORT || 5000, () => {
-      console.log(`Server is running on port ${process.env.PORT || 5000}`);
-    });
-  })
-  .catch(err => console.error("Database connection error:", err));
+// Start server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

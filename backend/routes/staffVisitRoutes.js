@@ -7,13 +7,14 @@ const {
   updateStaffVisit,
   deleteStaffVisit,
 } = require("../controllers/staffVisitController");
+const { protectAdmin } = require("../middleware/authMiddleware");
 
-router.route("/").post(createStaffVisit).get(getStaffVisits);
+router.route("/").post(createStaffVisit).get(protectAdmin, getStaffVisits);
 
 router
   .route("/:id")
-  .get(getStaffVisit)
-  .put(updateStaffVisit)
-  .delete(deleteStaffVisit);
+  .get(protectAdmin, getStaffVisit)
+  .put(protectAdmin, updateStaffVisit)
+  .delete(protectAdmin, deleteStaffVisit);
 
 module.exports = router;
