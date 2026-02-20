@@ -5,9 +5,10 @@ const {
   getLibraryUserFeedbacks,
   getLibraryUserFeedback,
 } = require("../controllers/libraryUserFeedbackController");
+const { protectAdmin } = require("../middleware/authMiddleware");
 
-router.route("/").post(createLibraryUserFeedback).get(getLibraryUserFeedbacks);
+router.route("/").post(createLibraryUserFeedback).get(protectAdmin, getLibraryUserFeedbacks);
 
-router.route("/:id").get(getLibraryUserFeedback);
+router.route("/:id").get(protectAdmin, getLibraryUserFeedback);
 
 module.exports = router;
