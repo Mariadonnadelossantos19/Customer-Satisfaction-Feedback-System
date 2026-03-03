@@ -24,18 +24,18 @@ const Navbar = () => {
           <div className="flex-shrink-0 flex items-center">
             <Link to="/" className="text-xl font-bold flex items-center gap-2">
               <img src={dostlogo} alt="DOST Logo" className="w-10 h-10" />
-              <span className="text-[#0083ff] font-semibold">
+              <span className="text-brand-600 font-semibold">
                 Customer Satisfaction Feedback System
               </span>
-            </Link> 
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
           <div className="hidden sm:flex sm:space-x-8">
             <Link
               to="/learn-more"
-              className="border border-[#0083ff] text-[#0083ff] hover:bg-blue-50 px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              aria-label="Admin Login"
+              className="border border-brand-600 text-brand-600 hover:bg-brand-50 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+              aria-label="About us"
             >
               About us
             </Link>
@@ -45,7 +45,7 @@ const Navbar = () => {
           <div className="sm:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-[#0083ff] hover:text-blue-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-[#0083ff]"
+              className="inline-flex items-center justify-center p-2 rounded-md text-brand-600 hover:text-brand-700 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-500"
               aria-controls="mobile-menu"
               aria-expanded={isMenuOpen}
               onClick={handleMenuToggle}
@@ -98,7 +98,7 @@ const Navbar = () => {
         <div className="px-2 pt-2 pb-3 space-y-1">
           <Link
             to="/"
-            className="block px-3 py-2 rounded-md text-base font-medium text-[#0083ff] hover:text-blue-700 hover:bg-gray-100"
+            className="block px-3 py-2 rounded-md text-base font-medium text-brand-600 hover:bg-brand-50"
             aria-label="Home"
             onClick={handleMenuToggle}
           >

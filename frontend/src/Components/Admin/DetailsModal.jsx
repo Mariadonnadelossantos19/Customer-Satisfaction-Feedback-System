@@ -109,10 +109,32 @@ const DetailsModal = ({ isOpen, onClose, feedback }) => {
     );
   };
 
+  // SQD labels for modal display only (not in print form)
+  const SQD_LABELS = {
+    0: 'Not Applicable',
+    1: 'Strongly Disagree',
+    2: 'Disagree',
+    3: 'Neutral',
+    4: 'Agree',
+    5: 'Strongly Agree',
+  };
+  const SQD_ITEMS_MODAL = [
+    { key: 'sqd0', dimension: 'Overall', label: "I am satisfied with the service that I availed." },
+    { key: 'sqd1', dimension: 'Responsiveness', label: "I spent a reasonable amount of time for my transaction." },
+    { key: 'sqd2', dimension: 'Reliability', label: "The office followed the transaction's requirements and steps based on the information provided." },
+    { key: 'sqd3', dimension: 'Access and Facilities', label: "The steps (including payment) I needed to do for my transaction were easy and simple." },
+    { key: 'sqd4', dimension: 'Communication', label: "I easily found information about my transaction from the office or its website." },
+    { key: 'sqd5', dimension: 'Costs', label: "I paid a reasonable amount of fees for my transaction. (If service was free, N/A)" },
+    { key: 'sqd6', dimension: 'Integrity', label: 'I feel the office was fair to everyone, or "walang palakasan", during my transaction.' },
+    { key: 'sqd7', dimension: 'Assurance', label: "I was treated courteously by the staff, and (if asked for help) the staff was helpful." },
+    { key: 'sqd8', dimension: 'Outcome', label: "I got what I needed from the government office, or (if denied) denial of request was sufficiently explained to me." },
+  ];
+
   // Render satisfaction ratings based on the feedback passed
   const renderSatisfactionRatings = () => {
     // Use the specific customer's satisfaction ratings
     const satisfactionData = customerFeedback.satisfaction || {};
+    const sqdData = customerFeedback.sqd || {};
     
     const satisfactionItems = [
       { key: 'speedAndTimeliness', label: 'Speed and Timeliness of Service' },
@@ -194,6 +216,39 @@ const DetailsModal = ({ isOpen, onClose, feedback }) => {
             })}
           </tbody>
         </table>
+
+        {/* Service Quality Dimensions (SQD) - modal only, not in print form */}
+        {SQD_ITEMS_MODAL.some(({ key }) => sqdData[key] != null) && (
+          <div className="mt-8 bg-white p-6 rounded-xl border border-gray-200">
+            <h6 className="text-sm font-semibold text-gray-700 mb-4">
+              Service Quality Dimensions (SQD)
+            </h6>
+            <div className="space-y-3">
+              {SQD_ITEMS_MODAL.map(({ key, dimension, label }) => {
+                const val = sqdData[key];
+                if (val == null) return null;
+                return (
+                  <div key={key} className="flex flex-wrap items-start justify-between gap-2 py-2 border-b border-gray-100 last:border-0">
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-semibold text-blue-600 uppercase">{key.replace('sqd', 'SQD')}</span>
+                      <span className="text-xs text-gray-500 ml-1">({dimension})</span>
+                      <p className="text-sm text-gray-700 mt-0.5">{label}</p>
+                    </div>
+                    <span className="text-sm font-medium text-gray-800 shrink-0">
+                      {SQD_LABELS[val] ?? '—'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {customerFeedback.sqdDisagreeReason && (
+              <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-100">
+                <p className="text-xs font-semibold text-gray-700 mb-1">Reason for Disagree / Strongly Disagree</p>
+                <p className="text-sm text-gray-600 whitespace-pre-wrap">{customerFeedback.sqdDisagreeReason}</p>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Recommendation Score */}
         <div className="mt-8 bg-white p-6 rounded-xl border border-gray-200">

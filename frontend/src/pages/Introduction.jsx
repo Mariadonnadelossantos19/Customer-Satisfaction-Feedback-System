@@ -83,7 +83,7 @@ const Introduction = () => {
           >
             <div className="inline-flex items-center gap-2 bg-blue-900/30 backdrop-blur-xl px-6 py-2 rounded-full mb-4 border border-cyan-500/20">
               <Cpu className="w-5 h-5 text-cyan-400" />
-              <span className="font-mono text-cyan-300">PSTO- Marinduque Customer Satisfaction feedback  System</span>
+              <span className="font-mono text-cyan-300">DOST- MIMAROPA Customer Satisfaction feedback  System</span>
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold mb-4 leading-tight">

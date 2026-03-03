@@ -50,6 +50,19 @@ const customerFeedbackSchema = new mongoose.Schema({
     max: 10,
     required: true,
   },
+  // SQD - Service Quality Dimensions (0=N/A, 1=Strongly Disagree, 2=Disagree, 3=Neutral, 4=Agree, 5=Strongly Agree)
+  sqd: {
+    sqd0: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd1: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd2: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd3: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd4: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd5: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd6: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd7: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+    sqd8: { type: Number, enum: [0, 1, 2, 3, 4, 5] },
+  },
+  sqdDisagreeReason: { type: String },
   suggestions: {
     type: String,
   },

@@ -2,6 +2,11 @@ const mongoose = require("mongoose");
 
 const staffVisitSchema = new mongoose.Schema(
   {
+    province: {
+      type: String,
+      required: true,
+      enum: ["Oriental Mindoro", "Occidental Mindoro", "Palawan", "Romblon", "Marinduque"],
+    },
     dateOfVisit: {
       type: Date,
       required: true,

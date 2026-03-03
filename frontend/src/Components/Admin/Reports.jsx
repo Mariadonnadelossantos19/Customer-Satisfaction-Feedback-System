@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../../api/axiosConfig';
 import { saveAs } from 'file-saver';
 import Papa from 'papaparse';
 import { useNavigate } from 'react-router-dom';
@@ -48,13 +48,13 @@ const Reports = () => {
   const fetchFeedbacks = async () => {
     try {
       setLoading(true);
-      const staffVisitsResponse = await axios.get('http://localhost:5000/api/staff-visits/');
+      const staffVisitsResponse = await api.get('/api/staff-visits/');
       
       if (staffVisitsResponse.data && Array.isArray(staffVisitsResponse.data)) {
         const staffVisitsWithFeedback = await Promise.all(
           staffVisitsResponse.data.map(async (staffVisit) => {
             try {
-              const feedbackResponse = await axios.get(`http://localhost:5000/api/customer-feedback/`, {
+              const feedbackResponse = await api.get('/api/customer-feedback/', {
                 params: {
                   staffVisitId: staffVisit._id
                 }

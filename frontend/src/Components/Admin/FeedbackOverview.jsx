@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { api } from "../../api/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import {
   FiEye,
@@ -36,21 +36,18 @@ const FeedbackOverview = () => {
       setLoading(true);
       
       // Fetch staff visits first
-      const staffVisitsResponse = await axios.get("http://localhost:5000/api/staff-visits/");
+      const staffVisitsResponse = await api.get("/api/staff-visits/");
 
       if (staffVisitsResponse.data && Array.isArray(staffVisitsResponse.data)) {
         // Use the same approach as Dashboard - individual API calls for each staff visit
         const staffVisitsWithFeedback = await Promise.all(
           staffVisitsResponse.data.map(async (staffVisit) => {
             try {
-              const feedbackResponse = await axios.get(
-                `http://localhost:5000/api/customer-feedback/`,
-                {
-                  params: {
-                    staffVisitId: staffVisit._id,
-                  },
-                }
-              );
+              const feedbackResponse = await api.get("/api/customer-feedback/", {
+                params: {
+                  staffVisitId: staffVisit._id,
+                },
+              });
 
               // Get the specific feedback for this staff visit
               const matchingFeedback = feedbackResponse.data[0];

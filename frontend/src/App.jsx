@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import StaffInput from "./pages/StaffInput";
 import SectionOne from "./pages/SectionOne";
@@ -8,7 +8,6 @@ import Navbar from "./Components/Layout/Navbar";
 //import CustomerReviewDashboard from './pages/CustomerReviewDashboard';
 //import ReviewSummary from "./pages/ReviewSummary";
 import Learnmore from "./pages/Learnmore";
-import Introduction from "./pages/Introduction";
 import Dashboard from "./Components/Admin/Dashboard";
 import Homepage from "./Components/Admin/Homepage";
 import AdminLogin from "./Components/Admin/AdminLogin";
@@ -27,7 +26,7 @@ const App = () => {
         {/*<Route path="/customer-review" element={<CustomerReviewDashboard />} />*/}
         {/*<Route path="/review-summary" element={<ReviewSummary />} />*/}
         <Route path="/learn-more" element={<Learnmore />} />
-        <Route path="/introduction" element={<Introduction />} />
+        <Route path="/introduction" element={<Navigate to="/" replace />} />
 
         {/* Admin Login Route */}
         <Route path="/admin-login" element={<AdminLogin />} />

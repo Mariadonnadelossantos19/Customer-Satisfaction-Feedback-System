@@ -23,6 +23,7 @@ const Settings = () => {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('adminToken');
     localStorage.removeItem('isAdmin');
     navigate('/admin-login');
   };

@@ -109,7 +109,7 @@ const LibraryFeedback = () => {
     <div className="max-w-3xl mx-auto space-y-4">
       {/* Subjects of Interest */}
       <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-        <h3 className="text-base font-semibold text-gray-700 mb-3">
+        <h3 className="text-base font-semibold text-slate-700 mb-3">
           Subjects of Interest
         </h3>
         <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
@@ -125,13 +125,13 @@ const LibraryFeedback = () => {
               })}
               className={`p-2 rounded-lg border cursor-pointer transition-all duration-200 
                 ${formData.subjectsOfInterest[key]
-                  ? 'border-blue-500 bg-blue-50 shadow-sm'
-                  : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}
+                  ? 'border-brand-500 bg-brand-50 shadow-sm'
+                  : 'border-slate-200 hover:border-brand-200 hover:bg-slate-50'}
               `}
             >
               <div className="flex flex-col items-center justify-center text-center h-16">
-                <span className="text-lg text-blue-600 mb-1">{icon}</span>
-                <span className="text-xs font-medium text-gray-700 line-clamp-2">{label}</span>
+                <span className="text-lg text-brand-600 mb-1">{icon}</span>
+                <span className="text-xs font-medium text-slate-700 line-clamp-2">{label}</span>
               </div>
             </div>
           ))}
@@ -147,13 +147,13 @@ const LibraryFeedback = () => {
             })}
             className={`p-2 rounded-lg border cursor-pointer transition-all duration-200
               ${formData.subjectsOfInterest.others
-                ? 'border-blue-500 bg-blue-50 shadow-sm'
-                : 'border-gray-200 hover:border-blue-200 hover:bg-gray-50'}
+                ? 'border-brand-500 bg-brand-50 shadow-sm'
+                : 'border-slate-200 hover:border-brand-200 hover:bg-slate-50'}
             `}
           >
             <div className="flex flex-col items-center justify-center text-center h-16">
-              <span className="text-lg text-blue-600 mb-1">+</span>
-              <span className="text-xs font-medium text-gray-700">Others</span>
+              <span className="text-lg text-brand-600 mb-1">+</span>
+              <span className="text-xs font-medium text-slate-700">Others</span>
             </div>
           </div>
         </div>
@@ -168,7 +168,7 @@ const LibraryFeedback = () => {
             value={formData.subjectsOfInterest.othersSpecify}
             onChange={handleInputChange}
             placeholder="Please specify other subjects"
-            className="w-full p-2 text-sm border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 border-slate-200"
           />
         </div>
       </div>
@@ -181,9 +181,9 @@ const LibraryFeedback = () => {
             name="queriesAnswered"
             checked={formData.queriesAnswered}
             onChange={handleInputChange}
-            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500 transition-colors"
+            className="w-4 h-4 text-brand-600 rounded focus:ring-brand-500 transition-colors"
           />
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-slate-700">
             Were your queries answered?
           </span>
         </label>
@@ -191,14 +191,14 @@ const LibraryFeedback = () => {
 
       {/* Main Reason */}
       <div className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-        <h3 className="text-base font-semibold text-gray-700 mb-2">
+        <h3 className="text-base font-semibold text-slate-700 mb-2">
           Main Reason for Visit
         </h3>
         <select
           name="mainReason"
           value={formData.mainReason}
           onChange={handleInputChange}
-          className="w-full p-2 text-sm border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 bg-white"
+          className="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 bg-white border-slate-200"
           required
         >
           <option value="">Select Reason</option>
@@ -219,7 +219,7 @@ const LibraryFeedback = () => {
             value={formData.mainReasonOthersSpecify}
             onChange={handleInputChange}
             placeholder="Please specify other reason"
-            className="w-full p-2 text-sm border rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full p-2 text-sm border rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 border-slate-200"
           />
         </div>
       </div>
@@ -228,9 +228,8 @@ const LibraryFeedback = () => {
       <button
         type="button"
         onClick={() => setShowSummary(true)}
-        className="w-full p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl
-          hover:from-blue-700 hover:to-blue-800 transition-all duration-200 
-          flex items-center justify-center gap-2 shadow-sm hover:shadow-md text-sm font-medium"
+        className="w-full p-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition-all duration-200 
+          flex items-center justify-center gap-2 shadow-sm hover:shadow-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
       >
         Review Your Responses
         <FiCheckCircle className="w-4 h-4" />
@@ -241,10 +240,10 @@ const LibraryFeedback = () => {
   const renderSummary = () => (
     <div className="space-y-6 bg-white p-6 rounded-lg shadow-lg mt-8">
       <div className="flex items-center justify-between border-b pb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Review Your Feedback</h2>
+        <h2 className="text-xl font-semibold text-slate-800">Review Your Feedback</h2>
         <button
           onClick={() => setShowSummary(false)}
-          className="text-blue-600 hover:text-blue-700 flex items-center gap-2"
+          className="text-brand-600 hover:text-brand-700 flex items-center gap-2"
         >
           <FiEdit2 className="w-4 h-4" />
           Edit All Responses
@@ -253,11 +252,11 @@ const LibraryFeedback = () => {
       
       <div className="space-y-6">
         {/* Queries Answered Section */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-slate-50 rounded-lg p-4">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="font-medium text-gray-700 mb-1">Queries Answered</h3>
-              <p className="text-sm text-gray-500">Were your queries addressed?</p>
+              <h3 className="font-medium text-slate-700 mb-1">Queries Answered</h3>
+              <p className="text-sm text-slate-500">Were your queries addressed?</p>
             </div>
             <div className="flex items-center gap-2">
               <span className={`px-3 py-1 rounded-full text-sm font-medium
@@ -269,7 +268,7 @@ const LibraryFeedback = () => {
               </span>
               <button
                 onClick={() => setShowSummary(false)}
-                className="text-gray-400 hover:text-blue-600"
+                className="text-slate-400 hover:text-brand-600"
               >
                 <FiEdit2 className="w-4 h-4" />
               </button>
@@ -278,15 +277,15 @@ const LibraryFeedback = () => {
         </div>
 
         {/* Subjects of Interest Section */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-slate-50 rounded-lg p-4">
           <div className="flex justify-between items-center mb-3">
             <div>
-              <h3 className="font-medium text-gray-700 mb-1">Subjects of Interest</h3>
-              <p className="text-sm text-gray-500">Selected areas of study</p>
+              <h3 className="font-medium text-slate-700 mb-1">Subjects of Interest</h3>
+              <p className="text-sm text-slate-500">Selected areas of study</p>
             </div>
             <button
               onClick={() => setShowSummary(false)}
-              className="text-gray-400 hover:text-blue-600"
+              className="text-slate-400 hover:text-brand-600"
             >
               <FiEdit2 className="w-4 h-4" />
             </button>
@@ -297,14 +296,14 @@ const LibraryFeedback = () => {
               .map(([key]) => {
                 const subject = subjectCards.find(card => card.key === key) || { icon: '+', label: 'Others' };
                 return (
-                  <div key={key} className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full">
+                  <div key={key} className="flex items-center gap-2 px-3 py-1.5 bg-brand-50 text-brand-700 rounded-full">
                     <span className="text-lg">{React.isValidElement(subject.icon) ? subject.icon : subject.icon}</span>
                     <span className="text-sm font-medium">{subject.label}</span>
                   </div>
                 );
               })}
             {formData.subjectsOfInterest.others && formData.subjectsOfInterest.othersSpecify && (
-              <div className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full">
+              <div className="px-3 py-1.5 bg-brand-50 text-brand-700 rounded-full">
                 <span className="text-sm font-medium">
                   Other: {formData.subjectsOfInterest.othersSpecify}
                 </span>
@@ -314,21 +313,21 @@ const LibraryFeedback = () => {
         </div>
 
         {/* Main Reason Section */}
-        <div className="bg-gray-50 rounded-lg p-4">
+        <div className="bg-slate-50 rounded-lg p-4">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="font-medium text-gray-700 mb-1">Main Reason for Visit</h3>
-              <p className="text-sm text-gray-500">Primary purpose of your visit</p>
+              <h3 className="font-medium text-slate-700 mb-1">Main Reason for Visit</h3>
+              <p className="text-sm text-slate-500">Primary purpose of your visit</p>
             </div>
             <button
               onClick={() => setShowSummary(false)}
-              className="text-gray-400 hover:text-blue-600"
+              className="text-slate-400 hover:text-brand-600"
             >
               <FiEdit2 className="w-4 h-4" />
             </button>
           </div>
           <div className="mt-2">
-            <div className="inline-flex items-center px-3 py-1.5 bg-purple-50 text-purple-700 rounded-full">
+            <div className="inline-flex items-center px-3 py-1.5 bg-brand-50 text-brand-700 rounded-full">
               <span className="text-sm font-medium">
                 {mainReasons.find(r => r.value === formData.mainReason)?.label}
                 {formData.mainReason === 'others' && `: ${formData.mainReasonOthersSpecify}`}
@@ -343,15 +342,14 @@ const LibraryFeedback = () => {
         <button
           type="button"
           onClick={() => setShowSummary(false)}
-          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200"
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors duration-200"
         >
           Edit Responses
         </button>
         <button
           type="submit"
-          className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg 
-            hover:from-blue-700 hover:to-blue-800 transition-all duration-200 
-            flex items-center justify-center gap-2"
+          className="flex-1 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-all duration-200 
+            flex items-center justify-center gap-2 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
         >
           Submit Feedback
           <FiCheckCircle className="w-5 h-5" />
@@ -361,36 +359,38 @@ const LibraryFeedback = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-slate-50">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Enhanced Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl shadow-lg mb-6 transform hover:scale-[1.01] transition-transform duration-300">
+        <div className="bg-brand-600 rounded-2xl shadow-lg mb-6 transform hover:scale-[1.01] transition-transform duration-300">
           <div className="p-8 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 transform translate-x-16 -translate-y-8">
               <div className="w-full h-full bg-white/10 rounded-full"></div>
             </div>
             <h1 className="text-3xl font-bold text-white mb-2">Library User Feedback</h1>
-            <p className="text-blue-100 text-lg">Help us improve our services</p>
+            <p className="text-brand-100 text-lg">Help us improve our services</p>
           </div>
         </div>
 
         {isLibraryUser === null ? (
           // Initial choice screen
-          <div className="bg-white rounded-2xl shadow-xl p-8">
+          <div className="bg-white rounded-2xl shadow-xl p-8 border border-slate-200">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-3">
+              <h2 className="text-2xl font-semibold text-slate-800 mb-3">
                 Did you use our library services today?
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
+                  type="button"
                   onClick={() => setIsLibraryUser(true)}
-                  className="group p-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl text-white"
+                  className="group p-6 bg-brand-600 rounded-xl text-white hover:bg-brand-700 transition-colors"
                 >
                   Yes, I did
                 </button>
                 <button
+                  type="button"
                   onClick={handleSkip}
-                  className="group p-6 bg-white border-2 border-gray-200 rounded-xl text-gray-700"
+                  className="group p-6 bg-white border-2 border-slate-200 rounded-xl text-slate-700 hover:bg-slate-50 transition-colors"
                 >
                   No, skip feedback
                 </button>

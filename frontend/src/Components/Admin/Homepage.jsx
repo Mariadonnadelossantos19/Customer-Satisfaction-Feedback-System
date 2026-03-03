@@ -1,17 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiHome,
   FiClipboard,
   // FiBell,
   FiPieChart,
+  FiUsers,
   //FiDatabase,
   FiSettings,
   FiLogOut,
   FiMenu,
 } from "react-icons/fi";
+import { api } from "../../api/axiosConfig";
 import FeedbackOverview from "./FeedbackOverview";
 import Admin from "./Dashboard";
+import PstoAdminManagement from "./PstoAdminManagement";
 //import Notifications from './Notifications';
 import Reports from "./Reports";
 import Settings from "./Settings";
@@ -21,6 +24,13 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeItem, setActiveItem] = useState("dashboard");
   const [content, setContent] = useState(<Admin />);
+  const [currentAdmin, setCurrentAdmin] = useState(null);
+
+  useEffect(() => {
+    api.get("/api/auth/admin/me").then((res) => {
+      if (res.data.success && res.data.admin) setCurrentAdmin(res.data.admin);
+    }).catch(() => setCurrentAdmin(null));
+  }, []);
 
   const handleNavigation = (route) => {
     setActiveItem(route);
@@ -35,15 +45,15 @@ const Sidebar = () => {
         break;
       case "Reports":
         setContent(<Reports />);
-        {
-          /*case 'notifications':
-        setContent(<Notifications />);*/
-        }
+        break;
+      case "psto-admins":
+        setContent(<PstoAdminManagement />);
         break;
       case "Settings":
         setContent(<Settings />);
         break;
       case "logout":
+        localStorage.removeItem('adminToken');
         localStorage.removeItem('isAdmin');
         navigate('/admin-login');
         break;
@@ -56,9 +66,10 @@ const Sidebar = () => {
   const menuItems = [
     { id: "dashboard", icon: FiHome, label: "Dashboard" },
     { id: "feedback-overview", icon: FiClipboard, label: "Feedback Overview" },
-    //{ id: 'notifications', icon: FiBell, label: 'Notifications', badge: 10 },
     { id: "Reports", icon: FiPieChart, label: "Satisfaction Reports" },
-    //{ id: 'customer-insights', icon: FiDatabase, label: 'Customer Insights' },
+    ...(currentAdmin?.role === "superadmin"
+      ? [{ id: "psto-admins", icon: FiUsers, label: "PSTO Admins" }]
+      : []),
   ];
 
   const bottomMenuItems = [
@@ -78,12 +89,17 @@ const Sidebar = () => {
         <div className="p-4 border-b border-gray-700">
           <h2 className="text-xl font-mono tracking-wider flex items-center">
             <span className="text-cyan-400 mr-2">◉</span>
-            <span>PSTO</span>
-            <span className="text-cyan-400 ml-1">Marinduque</span>
+            <span>DOST</span>
+            <span className="text-cyan-400 ml-1">MIMAROPA</span>
           </h2>
           <p className="text-xs text-gray-400 mt-1 font-mono">
             v2.4.1 | Analytics Engine
           </p>
+          {currentAdmin && (
+            <p className="text-xs text-cyan-300 mt-2 font-mono truncate" title={currentAdmin.username}>
+              {currentAdmin.role === "superadmin" ? "Super Admin" : currentAdmin.role === "psto_admin" && currentAdmin.province ? `PSTO: ${currentAdmin.province}` : currentAdmin.username}
+            </p>
+          )}
         </div>
 
         {/* Main Navigation */}

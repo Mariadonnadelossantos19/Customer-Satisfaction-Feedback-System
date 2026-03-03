@@ -72,7 +72,10 @@ const StaffInput = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const PROVINCES = ["Oriental Mindoro", "Occidental Mindoro", "Palawan", "Romblon", "Marinduque"];
+
   const initialFormState = {
+    province: "Marinduque",
     dateOfVisit: "",
     attendingStaff: "",
     serviceInquired: "",
@@ -215,6 +218,25 @@ const StaffInput = () => {
       case 1:
         return (
           <div className="space-y-8">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1.5 flex items-center gap-2">
+                <FiInfo className="text-cyan-600" />
+                <span>Province (PSTO)</span>
+                <span className="text-red-500">*</span>
+              </label>
+              <select
+                name="province"
+                value={formData.province}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 bg-white/90"
+              >
+                {PROVINCES.map((p) => (
+                  <option key={p} value={p}>{p}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-500 mt-1">Feedback will be viewed by the admin for this province.</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm text-gray-600 mb-1.5 flex items-center gap-2">
@@ -665,7 +687,11 @@ const StaffInput = () => {
                     <span>Date of Visit:</span> 
                     <span className="font-medium text-gray-700">{formData.dateOfVisit || "Not specified"}</span>
                   </p>
-                  
+                  <p className="text-sm text-gray-500 flex items-center gap-2">
+                    <FiInfo className="text-cyan-600" />
+                    <span>Province (PSTO):</span> 
+                    <span className="font-medium text-gray-700">{formData.province || "Not specified"}</span>
+                  </p>
                   <p className="text-sm text-gray-500 flex items-center gap-2">
                     <FiUser className="text-cyan-600" />
                     <span>Attending Staff:</span> 
@@ -887,6 +913,10 @@ const StaffInput = () => {
             <div>
               <h3 className="text-sm font-medium text-gray-900 mb-2">Basic Information</h3>
               <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-500">Province (PSTO):</span>
+                  <span className="text-sm font-medium">{formData.province}</span>
+                </div>
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-500">Date of Visit:</span>
                   <span className="text-sm font-medium">{formData.dateOfVisit}</span>

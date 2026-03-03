@@ -19,7 +19,12 @@ const adminSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "admin",
-      enum: ["admin", "superadmin"],
+      enum: ["admin", "superadmin", "psto_admin"],
+    },
+    province: {
+      type: String,
+      enum: ["Oriental Mindoro", "Occidental Mindoro", "Palawan", "Romblon", "Marinduque"],
+      default: null,
     },
   },
   { timestamps: true }
